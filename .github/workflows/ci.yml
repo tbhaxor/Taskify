@@ -1,0 +1,37 @@
+name: Continuous Integration
+on:
+  pull_request:
+    types: [synchronize, opened]
+  push:
+    branches: [main]
+jobs:
+  unit_testing:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        php-version: ["8.3"]
+        node-version: ["18.18.2"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - uses: shivammathur/setup-php@2.30.4
+        with:
+          php-version: ${{ matrix.php-version }}
+      - id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - run: composer install --prefer-dist
+      - run: |
+          cp .env.example .env
+          php artisan key:generate
+        shell: bash
+      - run: php artisan migrate
+      - run: php artisan test

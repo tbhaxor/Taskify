@@ -2,6 +2,17 @@
 
 @section('title', 'Show Task')
 
+@section('styles')
+    <style>
+        pre {
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 15px;
+        }
+    </style>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-body">
