@@ -163,7 +163,6 @@ class TaskControllerTest extends TestCase
         $task = Task::whereId(random_int($firstTask->id, $lastTask->id))->first();
 
         $response = $this->put('/tasks/'.$task->id.'/edit');
-        $response->dumpSession();
         $response->assertSessionHasErrors([
             'title' => 'The title field is required.',
             'status' => 'The status field is required.',
