@@ -29,7 +29,7 @@ class TaskController extends Controller
         ]));
 
         return to_route('task.index', [
-            'message' => 'New task has been created',
+            'message' => 'New task has been created.',
         ]);
     }
 
@@ -51,7 +51,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:256',
             'description' => '',
-            'status' => 'in:pending,in-progress,completed',
+            'status' => 'in:pending,in-progress,completed|required',
         ]);
 
         if ($task->status != TaskStatus::Completed && $validated['status'] == 'completed') {
