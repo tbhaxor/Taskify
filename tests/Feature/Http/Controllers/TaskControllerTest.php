@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Enums\TaskStatus;
+use App\Models\Group;
 use App\Models\Task;
 use Tests\TestCase;
 
@@ -11,133 +12,125 @@ class TaskControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Task::factory(10)->create();
+        Task::factory(100)->create();
     }
 
-    public function test_renders_table_of_tasks(): void
+    public function test_redirect_to_all_groups_when_task_group_mismatch()
     {
-        $response = $this->get('/tasks');
-        $response->assertViewIs('tasks.index');
-        $response->assertViewHas('tasks', Task::all());
-        $response->assertOk();
-    }
+        $group = Group::all()->shuffle()->first();
+        $task = Task::all()->where('group_id', '!=', $group->id)->first();
 
-    public function test_redirect_to_all_tasks_on_invalid_task()
-    {
-
-        $lastTask = Task::all()->last();
-
-        $response = $this->get('/tasks/'.$lastTask->id + 1);
-        $response->assertRedirectToRoute('task.index', [
-            'error' => 'Requested resource does not exist.',
+        $response = $this->get("/groups/{$group->id}/tasks/{$task->id}");
+        $response->assertRedirectToRoute('group.show', [
+            'group' => $group,
+            'error' => 'Requested task does not belong to this group.',
         ]);
-        $response = $this->get('/tasks/'.($lastTask->id + 1).'/edit');
-        $response->assertRedirectToRoute('task.index', [
-            'error' => 'Requested resource does not exist.',
-        ]);
-        $response = $this->get('/tasks/'.($lastTask->id + 1).'/delete');
-        $response->assertRedirectToRoute('task.index', [
-            'error' => 'Requested resource does not exist.',
-        ]);
-
     }
 
     public function test_show_valid_task_data()
     {
-        $firsTask = Task::all()->first();
-        $lastTask = Task::all()->last();
+        $group = Group::has('tasks', '>=', 1)->first();
+        $task = $group->tasks->shuffle()->first();
 
-        $task = Task::whereId(random_int($firsTask->id, $lastTask->id))->first();
-
-        $response = $this->get('/tasks/'.$task->id);
+        $response = $this->get("/groups/{$group->id}/tasks/{$task->id}");
         $response->assertOk();
         $response->assertViewIs('tasks.show');
         $response->assertViewHas('task', $task);
+        $response->assertViewHas('group', $group);
     }
 
     public function test_create_task_get_method_returns_view()
     {
-        $response = $this->get('/tasks/create');
+        $group = Group::all()->shuffle()->first();
+
+        $response = $this->get("/groups/{$group->id}/tasks/create");
         $response->assertOk();
         $response->assertViewIs('tasks.create');
-
     }
 
     public function test_create_task_does_not_work_with_invalid_data()
     {
-        $response = $this->post('/tasks/create', []);
+        $group = Group::all()->shuffle()->first();
+        $oldTaskCount = $group->tasks->count();
+
+        $response = $this->post("/groups/{$group->id}/tasks/create", []);
         $response->assertSessionHasErrors([
             'title' => 'The title field is required.',
         ]);
-        $response = $this->post('/tasks/create', [
+        $taskPayload = [
             'title' => fake()->regexify('/{A-Za-z0-9}{300}/'),
-        ]);
+        ];
+
+        $response = $this->post("/groups/{$group->id}/tasks/create", $taskPayload);
         $response->assertSessionHasErrors([
-            'title' => 'The title field must not be greater than 256 characters.',
+            'title' => 'The title field must not be greater than 64 characters.',
         ]);
+
+        $this->assertEquals($oldTaskCount, $group->tasks->count());
+        $this->assertDatabaseMissing('tasks', $taskPayload);
     }
 
     public function test_create_task_works_with_valid_data()
     {
+        $group = Group::all()->shuffle()->first();
+
         $taskPayload = [
-            'title' => fake()->text(120),
+            'title' => fake()->text(64),
             'description' => fake()->text(),
         ];
-        $taskCount = Task::all()->count();
-        $response = $this->post('/tasks/create', $taskPayload);
-        $response->assertRedirectToRoute('task.index', [
+        $response = $this->post("/groups/{$group->id}/tasks/create", $taskPayload);
+        $response->assertRedirectToRoute('group.show', [
+            'group' => $group,
             'message' => 'New task has been created.',
         ]);
-        $this->assertDatabaseCount('tasks', $taskCount + 1);
         $this->assertDatabaseHas('tasks', $taskPayload);
+
+        $this->assertEquals($group->tasks->last()->status, TaskStatus::Pending);
+        $this->assertNull($group->tasks->last()->completed_at);
     }
 
     public function test_delete_task_get_method_returns_view()
     {
-        $firstTask = Task::all()->first();
-        $lastTask = Task::all()->last();
+        $group = Group::has('tasks', '>=', 1)->first();
+        $task = $group->tasks->first();
 
-        $task = Task::whereId(random_int($firstTask->id, $lastTask->id))->first();
-
-        $response = $this->get('/tasks/'.$task->id.'/delete');
+        $response = $this->get("/groups/{$group->id}/tasks/{$task->id}/delete");
         $response->assertOk();
         $response->assertViewIs('tasks.delete');
         $response->assertViewHas('task', $task);
-
+        $response->assertViewHas('group', $group);
     }
 
     public function test_delete_task_and_return_to_all_tasks()
     {
-        $firstTask = Task::all()->first();
-        $lastTask = Task::all()->last();
+        $group = Group::has('tasks', '>=', 1)->first();
+        $task = $group->tasks->first();
 
-        $task = Task::whereId(random_int($firstTask->id, $lastTask->id))->first();
-
-        $response = $this->delete('/tasks/'.$task->id.'/delete');
-        $response->assertRedirectToRoute('task.index', [
+        $response = $this->delete("/groups/{$group->id}/tasks/{$task->id}/delete");
+        $response->assertRedirectToRoute('group.show', [
+            'group' => $group,
             'message' => 'Task is deleted.',
+        ]);
+        $this->assertDatabaseMissing('tasks', [
+            'id' => $task->id
         ]);
     }
 
     public function test_edit_task_get_method_returns_view()
     {
-        $firstTask = Task::all()->first();
-        $lastTask = Task::all()->last();
+        $group = Group::has('tasks', '>=', 1)->first();
+        $task = $group->tasks->first();
 
-        $task = Task::whereId(random_int($firstTask->id, $lastTask->id))->first();
-
-        $response = $this->get('/tasks/'.$task->id.'/delete');
+        $response = $this->get("/groups/{$group->id}/tasks/{$task->id}/edit");
         $response->assertOk();
-        $response->assertViewIs('tasks.delete');
+        $response->assertViewIs('tasks.edit');
         $response->assertViewHas('task', $task);
     }
 
     public function test_edit_task_updates_the_task_and_return_to_show_task()
     {
-        $firstTask = Task::all()->first();
-        $lastTask = Task::all()->last();
-
-        $task = Task::whereId(random_int($firstTask->id, $lastTask->id))->first();
+        $group = Group::has('tasks', '>=', 1)->first();
+        $task = $group->tasks->first();
 
         $validPayload = [
             'status' => fake()->randomElement([
@@ -145,31 +138,30 @@ class TaskControllerTest extends TestCase
                 'in-progress',
                 'completed',
             ]),
-            'title' => fake()->title(),
+            'title' => fake()->text(64),
             'description' => fake()->text(),
         ];
 
-        $response = $this->put('/tasks/'.$task->id.'/edit', $validPayload);
+        $response = $this->put("/groups/{$group->id}/tasks/{$task->id}/edit", $validPayload);
         $response->assertRedirectToRoute('task.show', [
+            'group' => $group,
             'task' => $task,
         ]);
     }
 
-    public function test_edit_task_throw_error_on_invalid_title()
+    public function test_edit_task_throw_errors_on_invalid_payload()
     {
-        $firstTask = Task::all()->where('status', '!=', TaskStatus::Completed)->first();
-        $lastTask = Task::all()->where('status', '!=', TaskStatus::Completed)->last();
+        $group = Group::has('tasks', '>=', 1)->first();
+        $task = $group->tasks->where('status', '!=', TaskStatus::Completed)->first();
 
-        $task = Task::whereId(random_int($firstTask->id, $lastTask->id))->first();
-
-        $response = $this->put('/tasks/'.$task->id.'/edit');
+        $response = $this->put("/groups/{$group->id}/tasks/{$task->id}/edit");
         $response->assertSessionHasErrors([
             'title' => 'The title field is required.',
             'status' => 'The status field is required.',
         ]);
 
-        $response = $this->put('/tasks/'.$task->id.'/edit', [
-            'title' => fake()->title(),
+        $response = $this->put("/groups/{$group->id}/tasks/{$task->id}/edit", [
+            'title' => fake()->text(64),
             'description' => fake()->text(),
             'status' => 'erroneous',
         ]);
@@ -177,13 +169,13 @@ class TaskControllerTest extends TestCase
             'status' => 'The selected status is invalid.',
         ]);
 
-        $response = $this->put('/tasks/'.$task->id.'/edit', [
-            'title' => fake()->title(),
+        $response = $this->put("/groups/{$group->id}/tasks/{$task->id}/edit", [
+            'title' => fake()->text(64),
             'description' => fake()->text(),
             'status' => 'completed',
         ]);
-        $response = $this->put('/tasks/'.$task->id.'/edit', [
-            'title' => fake()->title(),
+        $response = $this->put("/groups/{$group->id}/tasks/{$task->id}/edit", [
+            'title' => fake()->text(64),
             'description' => fake()->text(),
             'status' => 'pending',
         ]);

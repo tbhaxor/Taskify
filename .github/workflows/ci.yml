@@ -8,20 +8,22 @@ jobs:
   unit_testing:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        php-version: ["8.3"]
+        php-version: ["8.2", "8.3"]
         node-version: ["18.18.2"]
+        os: ["macos-latest", "ubuntu-latest"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        name: Checkout repository
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
-      - run: yarn install --silent --no-progress --frozen-lockfile
+        name: Setup Nodejs v${{matrix.node-version}}
       - uses: shivammathur/setup-php@2.30.4
         with:
           php-version: ${{ matrix.php-version }}
+        name: Setup PHP v${{ matrix.php-version }}
       - id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
       - uses: actions/cache@v4
@@ -29,10 +31,18 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+        name: Get composer cache directory
+      - run: yarn install --silent --no-progress --frozen-lockfile
+        name: Install yarn modules
+      - run: yarn build
+        name: Build vite manifest and bundles
       - run: composer install --prefer-dist
+        name: Install composer dependencies
       - run: |
           cp .env.example .env
           php artisan key:generate
-        shell: bash
+        name: Provision environment variables and generate session key
       - run: php artisan migrate
+        name: Run artisan migration
       - run: php artisan test
+        name: Run unit tests

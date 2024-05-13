@@ -2,13 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\Group;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Task>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Group>
  */
-class TaskFactory extends Factory
+class GroupFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,12 +16,9 @@ class TaskFactory extends Factory
      */
     public function definition(): array
     {
-        $group = Group::all()->shuffle()->first();
-
         return [
             'title' => fake()->text(64),
-            'description' => fake()->text(),
-            'group_id' => $group->id
+            'description' => fake()->text()
         ];
     }
 }
