@@ -1,10 +1,10 @@
 @extends('layouts.base')
 
-@section('title', 'Delete Task')
+@section('title', 'Delete Group')
 
 @section('content')
-<h1>Delete <strong>{{ $task->title }}</strong></h1>
-<p>Are you sure you want to delete this task?</p>
+<h1>Delete <strong>{{ $group->title }}</strong></h1>
+<p>Are you sure you want to delete this group?</p>
 <form action="" method="post">
     @csrf
     @method('DELETE')
@@ -19,7 +19,7 @@
             $('#goBackBtn').click(function(e) {
                 e.preventDefault()
                 if (history.length == 1) {
-                    window.location.href = '{{ route('group.show', [ 'group' => $group ] )}}'
+                    window.location.href = '{{ route('group.index' )}}'
                 } else {
                     history.back();
                 }

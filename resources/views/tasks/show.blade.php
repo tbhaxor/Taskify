@@ -34,9 +34,9 @@
             {{ $task->updated_at }}
         </p>
       
-        <a href="{{ route('task.index') }}" class="card-link">All Tasks</a>
-        <a href="{{ route('task.edit', ['task' => $task]) }}" class="card-link">Edit</a>
-        <a href="{{ route('task.delete', ['task' => $task]) }}" class="card-link text-danger">Delete</a>
+        <a href="{{ route('group.show', ['group' => $group]) }}" class="card-link">All Tasks</a>
+        <a href="{{ route('task.edit', ['task' => $task, 'group' => $group]) }}" class="card-link">Edit</a>
+        <a href="{{ route('task.delete', ['task' => $task, 'group' => $group]) }}" class="card-link text-danger">Delete</a>
     </div>
   </div>
 @endsection

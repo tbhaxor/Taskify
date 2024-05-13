@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TaskStatus;
+use App\Models\Group;
 use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,31 +18,47 @@ class TaskController extends Controller
         ]);
     }
 
-    public function create(Request $request)
+    public function create(Request $request, Group $group)
     {
         if ($request->isMethod('GET')) {
             return view('tasks.create');
         }
 
-        Task::create($request->validate([
-            'title' => 'required|max:256',
+        $group->tasks()->create($request->validate([
+            'title' => 'required|max:64',
             'description' => '',
         ]));
 
-        return to_route('task.index', [
+        return to_route('group.show', [
+            'group' => $group,
             'message' => 'New task has been created.',
         ]);
     }
 
-    public function show(Task $task)
+    public function show(Group $group, Task $task)
     {
+        if ($group->id != $task->group_id) {
+            return to_route('group.show', [
+                'group' => $group,
+                'error' => 'Requested task does not belong to this group.'
+            ]);
+        }
+
         return view('tasks.show', [
             'task' => $task,
+            'group' => $group
         ]);
     }
 
-    public function edit(Request $request, Task $task)
+    public function edit(Request $request, Group $group, Task $task)
     {
+        if ($group->id != $task->group_id) {
+            return to_route('group.show', [
+                'group' => $group,
+                'error' => 'Requested task does not belong to this group.'
+            ]);
+        }
+
         if ($request->isMethod('GET')) {
             return view('tasks.edit', [
                 'task' => $task,
@@ -49,7 +66,7 @@ class TaskController extends Controller
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:256',
+            'title' => 'required|string|max:64',
             'description' => '',
             'status' => 'in:pending,in-progress,completed|required',
         ]);
@@ -67,21 +84,31 @@ class TaskController extends Controller
         $task->update($validated);
 
         return to_route('task.show', [
+            'group' => $group,
             'task' => $task,
         ]);
     }
 
-    public function delete(Task $task)
+    public function delete(Group $group, Task $task)
     {
+        if ($group->id != $task->group_id) {
+            return to_route('group.show', [
+                'group' => $group,
+                'error' => 'Requested task does not belong to this group.'
+            ]);
+        }
+
         if (request()->isMethod('GET')) {
             return view('tasks.delete', [
                 'task' => $task,
+                'group' => $group
             ]);
         }
 
         $task->delete();
 
-        return to_route('task.index', [
+        return to_route('group.show', [
+            'group' => $group,
             'message' => 'Task is deleted.',
         ]);
     }

@@ -23,4 +23,9 @@ class Task extends Model
             'status' => TaskStatus::class,
         ];
     }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 }
