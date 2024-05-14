@@ -10,7 +10,7 @@
         @method('PUT')
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
-            <input type="text" class="form-control" value="{{ old('title', $group->title) }}" id="title" name="title" placeholder="Enter the group title....">
+            <input type="text" class="form-control @error('title') is-invalid  @enderror" required value="{{ old('title', $group->title) }}" id="title" name="title" placeholder="Enter the group title....">
             @error('title')
                 <div class="form-text text-danger">{{ $message }}</div>
             @enderror

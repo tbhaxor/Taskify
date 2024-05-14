@@ -11,7 +11,7 @@
         <div class="mb-3 row">
             <div class="col-6">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" value="{{ old('title', $task->title) }}" id="title" name="title" placeholder="Enter the task title....">
+                <input type="text" class="form-control @error('title') is-invalid @enderror" required value="{{ old('title', $task->title) }}" id="title" name="title" placeholder="Enter the task title....">
                 @error('title')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
@@ -19,7 +19,7 @@
             <div class="col-6">
                 <label for="status" class="form-label">Status</label>
                 {{ old('status') }}
-                <select id="status" name="status" class="form-control">
+                <select id="status" name="status" class="form-select @error('status') is-invalid @enderror">
                     <option value="pending" @selected(old('status', $task->status) == \App\Enums\TaskStatus::Pending)>Pending</option>
                     <option value="in-progress" @selected(old('status', $task->status) == \App\Enums\TaskStatus::InProgress)>In-progress</option>
                     <option value="completed" @selected(old('status', $task->status) == \App\Enums\TaskStatus::Completed)>Completed</option>

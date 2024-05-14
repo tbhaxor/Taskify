@@ -9,7 +9,7 @@
         @csrf
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
-                <input type="title" class="form-control error" id="title" name="title" placeholder="Enter the group title....">
+                <input type="title" class="form-control @error('title') is-error @enderror" id="title" required name="title" placeholder="Enter the group title....">
                 @error('title')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
