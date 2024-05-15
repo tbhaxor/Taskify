@@ -21,7 +21,7 @@
             <tr>
                 <th scope="row">{{ $group->id }}</th>
                 <td><a href="{{ route('group.show', ['group' => $group]) }}">{{ $group->title }}</a></td>
-                <td>{{ $group->tasks->count() }}</td>
+                <td>{{ $group->tasks_count }}</td>
                 <td>{{ $group->updated_at }}</td>
                 <td>
                     <div class="btn-group" role="group">
