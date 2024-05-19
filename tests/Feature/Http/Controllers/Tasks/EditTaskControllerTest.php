@@ -138,13 +138,19 @@ class EditTaskControllerTest extends TestCase
             'group' => $this->group,
             'task' => $this->task,
         ]), $payload);
-        $response->dump();
-        $response->dumpHeaders();
-        $response->ddSession();
 
         $response->assertRedirectToRoute('task.show', [
             'group' => $this->group,
             'task' => $this->task,
         ]);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->user = User::query()->whereHas('groups.tasks')->get()->first();
+        $this->group = $this->user->groups->toQuery()->whereHas('tasks')->get()->first();
+        $this->task = $this->group->tasks->first();
     }
 }
