@@ -8,6 +8,14 @@ use Tests\TestCase;
 
 class DeleteGroupControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        User::factory(10)->create();
+        Group::factory(50)->create();
+    }
+
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {
         $response = $this->get(route('group.delete', [
@@ -24,9 +32,6 @@ class DeleteGroupControllerTest extends TestCase
         $response = $this->actingAs($user)->get(route('group.delete', [
             'group' => $group
         ]));
-        $response->dump();
-        $response->dumpSession();
-        $response->dumpHeaders();
         $response->assertForbidden();
     }
 

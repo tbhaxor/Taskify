@@ -7,6 +7,13 @@ use Tests\TestCase;
 
 class DeleteProfileSettingsControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        User::factory(5)->create();
+    }
+
     public function test_should_return_to_login_when_unauthenticated()
     {
         $response = $this->post(route('profile.delete'));

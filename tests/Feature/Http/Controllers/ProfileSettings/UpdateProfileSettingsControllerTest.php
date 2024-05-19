@@ -10,6 +10,13 @@ use Tests\TestCase;
 
 class UpdateProfileSettingsControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        User::factory(10)->create();
+    }
+
     public function test_should_return_to_login_when_unauthenticated()
     {
         $response = $this->post(route('profile.edit'));
@@ -36,7 +43,7 @@ class UpdateProfileSettingsControllerTest extends TestCase
             'password' => Hash::make($password)
         ]);
 
-        $executor = fn (array $data = []) => $this->actingAs($user)->post(route('profile.edit'), $data);
+        $executor = fn(array $data = []) => $this->actingAs($user)->post(route('profile.edit'), $data);
 
         $response = $executor();
         $response->assertSessionHasErrors([

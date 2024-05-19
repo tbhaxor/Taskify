@@ -15,7 +15,7 @@ class LogoutControllerTest extends TestCase
 
     public function test_should_redirect_to_login_page_as_authenticated(): void
     {
-        $response = $this->actingAs(User::all()->first())->get(route('auth.logout'));
+        $response = $this->actingAs(User::factory(1)->create()->first())->get(route('auth.logout'));
         $response->assertRedirectToRoute('auth.login');
     }
 }

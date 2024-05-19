@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers\Tasks;
 
 use App\Models\Group;
+use App\Models\Task;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -15,6 +16,10 @@ class CreateTaskControllerTest extends TestCase
     {
         parent::setUp();
 
+        User::factory(10)->create();
+        Group::factory(50)->create();
+        Task::factory(50)->create();
+        
         $this->user = User::query()->whereHas('groups')->get()->first();
         $this->group = $this->user->groups->random(1)->first();
     }
