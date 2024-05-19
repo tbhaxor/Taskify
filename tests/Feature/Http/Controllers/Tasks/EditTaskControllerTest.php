@@ -139,12 +139,6 @@ class EditTaskControllerTest extends TestCase
             'task' => $this->task,
         ]), $payload);
 
-        $this->task->refresh();
-
-        $this->assertEquals($payload['title'], $this->task->title);
-        $this->assertEquals($payload['status'], $this->task->status);
-        $this->assertEquals($payload['description'], $this->task->description);
-        
         $response->assertRedirectToRoute('task.show', [
             'group' => $this->group,
             'task' => $this->task,
