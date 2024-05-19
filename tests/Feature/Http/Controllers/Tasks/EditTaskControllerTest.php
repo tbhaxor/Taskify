@@ -138,6 +138,9 @@ class EditTaskControllerTest extends TestCase
             'group' => $this->group,
             'task' => $this->task,
         ]), $payload);
+        $response->dump();
+        $response->dumpHeaders();
+        $response->ddSession();
 
         $response->assertRedirectToRoute('task.show', [
             'group' => $this->group,
