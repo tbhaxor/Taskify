@@ -8,6 +8,14 @@ use Tests\TestCase;
 
 class EditGroupControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        User::factory(10)->create();
+        Group::factory(50)->create();
+    }
+    
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {
         $response = $this->get(route('group.edit', [
