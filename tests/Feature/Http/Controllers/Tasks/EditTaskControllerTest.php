@@ -144,13 +144,4 @@ class EditTaskControllerTest extends TestCase
             'task' => $this->task,
         ]);
     }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->user = User::query()->whereHas('groups.tasks')->get()->first();
-        $this->group = $this->user->groups->toQuery()->whereHas('tasks')->get()->first();
-        $this->task = $this->group->tasks->first();
-    }
 }
