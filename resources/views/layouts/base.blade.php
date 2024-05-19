@@ -9,6 +9,30 @@
     @yield('styles')
 </head>
 <body>
+    @auth
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{{ route('group.index') }}">Taskify</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link @if (Route::getCurrentRoute()->getName() == 'group.index') active @endif" href="{{ route('group.index') }}">Task Groups</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @if(Route::getCurrentRoute()->getName() == 'profile.edit') active @endif " aria-current="page" href="{{ route('profile.edit') }}">Profile Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-link" href="{{ route('auth.logout') }}">Logout</a>
+                </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    @endauth
+
     <main class="container mt-4">
         @yield('content')
     </main>
