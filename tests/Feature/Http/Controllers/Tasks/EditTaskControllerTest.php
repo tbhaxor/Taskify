@@ -22,7 +22,7 @@ class EditTaskControllerTest extends TestCase
         Task::factory(50)->createMany();
 
         $this->user = User::query()->whereHas('groups', count: 2)->get()->first();
-        $this->group = $this->user->groups->toQuery()->whereHas('tasks')->first();
+        $this->group = $this->user->groups->toQuery()->whereHas('tasks')->get()->first();
         $this->task = $this->group->tasks->first();
     }
 
@@ -137,6 +137,10 @@ class EditTaskControllerTest extends TestCase
             'group' => $this->group,
             'task' => $this->task,
         ]), $payload);
+        $this->assertDatabaseHas('tasks', [
+            ...$payload,
+            'id' => $this->task->id,
+        ]);
         $response->assertRedirectToRoute('task.show', [
             'group' => $this->group,
             'task' => $this->task,
