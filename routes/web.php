@@ -7,8 +7,10 @@ use App\Http\Controllers\Groups\ListGroupController;
 use App\Http\Controllers\Groups\ShowGroupController;
 use App\Http\Controllers\ProfileSettings\DeleteProfileSettingsController;
 use App\Http\Controllers\ProfileSettings\UpdateProfileSettingsController;
-use App\Http\Controllers\TaskController;
-use App\Http\Middleware\GroupTaskValidationMiddleware;
+use App\Http\Controllers\Tasks\CreateTaskController;
+use App\Http\Controllers\Tasks\DeleteTaskController;
+use App\Http\Controllers\Tasks\EditTaskController;
+use App\Http\Controllers\Tasks\ShowTaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,20 +41,19 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::name('task.')
-        ->controller(TaskController::class)
+        ->scopeBindings() // checks if the child model is really a child of the parent
         ->prefix('groups/{group}/tasks')
-        ->middleware(GroupTaskValidationMiddleware::class)
         ->group(function () {
-            Route::match(['GET', 'POST'], 'create', 'create')->name('create');
+            Route::match(['GET', 'POST'], 'create', CreateTaskController::class)->name('create');
             Route::missing(function () {
                 return to_route('group.show', [
                     'error' => 'Requested task does not exist.',
                     'group' => request()->route()->parameters['group']
                 ]);
             })->group(function () {
-                Route::get('{task}', 'show')->name('show');
-                Route::match(['GET', 'PUT'], '{task}/edit', 'edit')->name('edit');
-                Route::match(['GET', 'DELETE'], '{task}/delete', 'delete')->name('delete');
+                Route::get('{task}', ShowTaskController::class)->name('show');
+                Route::match(['GET', 'PUT'], '{task}/edit', EditTaskController::class)->name('edit');
+                Route::match(['GET', 'DELETE'], '{task}/delete', DeleteTaskController::class)->name('delete');
             });
         });
 });
