@@ -22,7 +22,7 @@ class DeleteTaskControllerTest extends TestCase
         Task::factory(50)->createMany();
 
         $this->user = User::query()->whereHas('groups', count: 2)->get()->first();
-        $this->group = $this->user->groups->toQuery()->whereHas('tasks')->first();
+        $this->group = $this->user->groups->toQuery()->whereHas('tasks')->get()->first();
         $this->task = $this->group->tasks->first();
     }
 
