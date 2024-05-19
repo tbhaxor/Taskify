@@ -36,7 +36,9 @@
 <div class="row">
     <h4>Tasks</h4>
     <div id="alert-container"></div>
-    <a href="{{ route('task.create', ['group' => $group] )}}">Create New Task</a>
+    <div class="">
+        <a href="{{ route('task.create', ['group' => $group] )}}" class="btn btn-primary">Create New Task</a>
+    </div>
 
     @include('tasks.index', ['tasks' => $group->tasks, 'group' => $group])
 </div>
