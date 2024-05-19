@@ -45,9 +45,11 @@ class ShowGroupControllerTest extends TestCase
     public function test_should_redirect_to_all_groups_on_invalid_group_id()
     {
         $user = User::all()->random(1)->first();
+        $group = $user->groups->random(1)->first();
+        $group->delete();
 
         $response = $this->actingAs($user)->get(route('group.show', [
-            'group' => Group::all()->last()->id + 1
+            'group' => $group
         ]));
         $response->assertRedirectToRoute('group.index', [
             'error' => 'Requested resource does not exist.'
