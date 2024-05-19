@@ -21,7 +21,7 @@ class EditTaskControllerTest extends TestCase
         Group::factory(20)->createMany();
         Task::factory(50)->createMany();
 
-        $this->user = User::query()->whereHas('groups', count: 2)->get()->first();
+        $this->user = User::query()->whereHas('groups.tasks')->get()->first();
         $this->group = $this->user->groups->toQuery()->whereHas('tasks')->get()->first();
         $this->task = $this->group->tasks->first();
     }
@@ -73,6 +73,7 @@ class EditTaskControllerTest extends TestCase
             'error' => 'Requested task does not exist.'
         ]);
 
+        $this->user = User::query()->whereHas('groups.tasks')->get()->first();
         $this->group = $this->user->groups->toQuery()->whereHas('tasks')->get()->first();
         $this->task = $this->group->tasks->first();
     }
