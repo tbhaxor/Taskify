@@ -24,6 +24,9 @@ class DeleteGroupControllerTest extends TestCase
         $response = $this->actingAs($user)->get(route('group.delete', [
             'group' => $group
         ]));
+        $response->dump();
+        $response->dumpSession();
+        $response->dumpHeaders();
         $response->assertForbidden();
     }
 
