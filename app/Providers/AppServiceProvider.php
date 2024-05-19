@@ -20,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Schema::enableForeignKeyConstraints();
+        if (file_exists(database_path('database.sqlite'))) {
+            Schema::enableForeignKeyConstraints();
+        }
     }
 }
