@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,8 @@ class GroupFactory extends Factory
     {
         return [
             'title' => fake()->text(64),
-            'description' => fake()->text()
+            'description' => fake()->text(),
+            'user_id' => User::all()->random(1)->first()->id
         ];
     }
 }

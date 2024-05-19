@@ -1,12 +1,14 @@
 <?php
 
-use App\Http\Controllers\GroupController;
+use App\Http\Controllers\Groups\CreateGroupController;
+use App\Http\Controllers\Groups\DeleteGroupController;
+use App\Http\Controllers\Groups\EditGroupController;
 use App\Http\Controllers\Groups\ListGroupController;
+use App\Http\Controllers\Groups\ShowGroupController;
 use App\Http\Controllers\ProfileSettings\DeleteProfileSettingsController;
 use App\Http\Controllers\ProfileSettings\UpdateProfileSettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Middleware\GroupTaskValidationMiddleware;
-use App\Http\Middleware\UserGroupMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,19 +24,19 @@ Route::middleware('auth')->group(function () {
         Route::post('delete', DeleteProfileSettingsController::class)->name('delete');
     });
 
-    Route::name('group.')->controller(GroupController::class)->prefix('groups')->group(function () {
-        Route::get('', 'index')->name('index');
-        Route::match(['GET', 'POST'], 'create', 'create')->name('create');
+    Route::name('group.')->prefix('groups')->group(function () {
+        Route::get('', ListGroupController::class)->name('index');
+        Route::match(['GET', 'POST'], 'create', CreateGroupController::class)->name('create');
         Route::missing(function () {
             return to_route('group.index', [
                 'error' => 'Requested resource does not exist.',
             ]);
         })->group(function () {
-            Route::get('{group}', 'show')->name('show');
-            Route::match(['GET', 'PUT'], '{group}/edit', 'edit')->name('edit');
-            Route::match(['GET', 'DELETE'], '{group}/delete', 'delete')->name('delete');
+            Route::get('{group}', ShowGroupController::class)->name('show');
+            Route::match(['GET', 'PUT'], '{group}/edit', EditGroupController::class)->name('edit');
+            Route::match(['GET', 'DELETE'], '{group}/delete', DeleteGroupController::class)->name('delete');
         });
-    })->middleware(UserGroupMiddleware::class);
+    });
 
     Route::name('task.')
         ->controller(TaskController::class)
