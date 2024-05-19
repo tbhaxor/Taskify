@@ -15,7 +15,7 @@ class ShowGroupControllerTest extends TestCase
         User::factory(10)->create();
         Group::factory(50)->create();
     }
-    
+
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {
         $response = $this->get(route('group.show', [
@@ -52,8 +52,9 @@ class ShowGroupControllerTest extends TestCase
 
     public function test_should_redirect_to_all_groups_on_invalid_group_id()
     {
-        $user = User::all()->random(1)->first();
-        $group = $user->groups->random(1)->first();
+        /** @var User $user */
+        $user = User::query()->whereHas('groups')->get()->first();
+        $group = $user->groups->first();
         $group->delete();
 
         $response = $this->actingAs($user)->get(route('group.show', [
