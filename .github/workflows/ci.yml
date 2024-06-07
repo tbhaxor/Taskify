@@ -2,15 +2,13 @@ name: Continuous Integration
 on:
   pull_request:
     types: [ synchronize, opened ]
-  push:
-    branches: [ main ]
 jobs:
   unit_testing:
     strategy:
       matrix:
         php-version: [ "8.2", "8.3" ]
         node-version: [ "18.18.2" ]
-        os: [ "macos-latest", "ubuntu-latest" ]
+        os: [ "macos-latest", "ubuntu-latest", "windows-latest" ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +40,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate
         name: Provision environment variables and generate session key
+        shell: bash
       - run: php artisan migrate
         name: Run artisan migration
       - run: php artisan test -p
