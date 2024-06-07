@@ -17,12 +17,9 @@ class Task extends Model
         'completed_at',
     ];
 
-    protected function casts()
-    {
-        return [
-            'status' => TaskStatus::class,
-        ];
-    }
+    protected $casts = [
+        'status' => TaskStatus::class
+    ];
 
     public function group()
     {
