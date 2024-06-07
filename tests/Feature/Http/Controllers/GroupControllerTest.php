@@ -2,28 +2,28 @@
 
 namespace Tests\Feature\Http\Controllers;
 
-use App\Models\Group;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class GroupControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Group::factory(10)->create();
-    }
+    use RefreshDatabase, WithFaker, TestHelper;
 
     public function test_get_list_of_all_groups(): void
     {
+        $groups = $this->createGroups();
+
         $response = $this->get('/groups');
         $response->assertOk();
         $response->assertViewIs('groups.index');
-        $response->assertViewHas('groups', Group::all());
+        $response->assertViewHas('groups', $groups);
     }
 
     public function test_get_group_information()
     {
-        $group = Group::all()->shuffle()->first();
+        $group = $this->createGroup();
 
         $response = $this->get("/groups/{$group->id}");
         $response->assertViewIs('groups.show');
@@ -32,10 +32,11 @@ class GroupControllerTest extends TestCase
 
     public function test_redirect_to_groups_index_on_invalid_group()
     {
-        $invalidGroupId = Group::all()->last()->id + 1;
+        $invalidGroupId = $this->createGroup()->id + 1;
+
         $response = $this->get("/groups/{$invalidGroupId}");
         $response->assertRedirectToRoute('group.index', [
-            'error' => 'Requested resource does not exist.'
+            'error' => 'Requested resource does not exist.',
         ]);
     }
 
@@ -46,9 +47,6 @@ class GroupControllerTest extends TestCase
         $response->assertViewIs('groups.create');
     }
 
-
-
-
     public function test_create_group_reject_invalid_values()
     {
 
@@ -57,7 +55,7 @@ class GroupControllerTest extends TestCase
             'title' => 'The title field is required.',
         ]);
         $groupPayload = [
-            'title' => fake()->regexify('/{A-Za-z0-9}{300}/'),
+            'title' => $this->faker->regexify('/{A-Za-z0-9}{300}/'),
         ];
 
         $response = $this->post('/groups/create', $groupPayload);
@@ -65,7 +63,7 @@ class GroupControllerTest extends TestCase
             'title' => 'The title field must not be greater than 64 characters.',
         ]);
 
-        $this->assertDatabaseMissing('tasks', $groupPayload);
+        $this->assertDatabaseMissing('groups', $groupPayload);
     }
 
     public function test_create_group_should_accept_valid_values()
@@ -73,19 +71,19 @@ class GroupControllerTest extends TestCase
         $title = fake()->text(64);
 
         $response = $this->post('/groups/create', [
-            'title' => $title
+            'title' => $title,
         ]);
         $response->assertRedirectToRoute('group.index', [
-            'message' => 'New group has been created.'
+            'message' => 'New group has been created.',
         ]);
         $this->assertDatabaseHas('groups', [
-            'title' => $title
+            'title' => $title,
         ]);
     }
 
     public function test_delete_group_get_method_returns_view()
     {
-        $group = Group::all()->shuffle(1)->first();
+        $group = $this->createGroup();
 
         $response = $this->get("/groups/{$group->id}/delete");
         $response->assertOk();
@@ -95,18 +93,17 @@ class GroupControllerTest extends TestCase
 
     public function test_delete_group_should_return_to_groups_index()
     {
-        $group = Group::all()->shuffle()->first();
+        $group = $this->createGroup();
 
         $response = $this->delete("/groups/{$group->id}/delete");
         $response->assertRedirectToRoute('group.index', [
-            'message' => 'Group is deleted.'
+            'message' => 'Group is deleted.',
         ]);
     }
 
-
     public function test_edit_group_get_method_returns_view()
     {
-        $group = Group::all()->shuffle(1)->first();
+        $group = $this->createGroup();
 
         $response = $this->get("/groups/{$group->id}/edit");
         $response->assertOk();
@@ -116,7 +113,7 @@ class GroupControllerTest extends TestCase
 
     public function test_edit_group_should_reject_on_invalid_payload()
     {
-        $group = Group::all()->shuffle()->first();
+        $group = $this->createGroup();
 
         $response = $this->put("/groups/{$group->id}/edit");
         $response->assertSessionHasErrors([
@@ -124,7 +121,7 @@ class GroupControllerTest extends TestCase
         ]);
 
         $response = $this->put("/groups/{$group->id}/edit", [
-            'title' => fake()->regexify('/[A-Za-z0-9]{200}/')
+            'title' => $this->faker->regexify('/[A-Za-z0-9]{200}/'),
         ]);
         $response->assertSessionHasErrors([
             'title' => 'The title field must not be greater than 64 characters.',
@@ -133,17 +130,17 @@ class GroupControllerTest extends TestCase
 
     public function test_edit_group_should_accept_valid_payload()
     {
-        $group = Group::all()->shuffle()->first();
-        $title = fake()->text(64);
+        $group = $this->createGroup();
+        $title = $this->faker->text(64);
 
         $response = $this->put("/groups/{$group->id}/edit", [
-            'title' => $title
+            'title' => $title,
         ]);
         $response->assertRedirectToRoute('group.show', [
-            'group' => $group
+            'group' => $group,
         ]);
         $this->assertDatabaseMissing('groups', [
-            'title' => $group->title
+            'title' => $group->title,
         ]);
         $this->assertDatabaseHas('groups', [
             'title' => $title,
