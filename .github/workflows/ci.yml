@@ -16,20 +16,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
         name: Setup Nodejs v${{matrix.node-version}}
       - uses: shivammathur/setup-php@2.30.4
         with:
           php-version: ${{ matrix.php-version }}
         name: Setup PHP v${{ matrix.php-version }}
-      - id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-        name: Get composer cache directory
       - run: npm ci
         name: Install node modules
       - run: npm run build
