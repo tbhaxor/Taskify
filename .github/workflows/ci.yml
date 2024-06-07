@@ -1,16 +1,16 @@
 name: Continuous Integration
 on:
   pull_request:
-    types: [synchronize, opened]
+    types: [ synchronize, opened ]
   push:
-    branches: [main]
+    branches: [ main ]
 jobs:
   unit_testing:
     strategy:
       matrix:
-        php-version: ["8.2", "8.3"]
-        node-version: ["18.18.2"]
-        os: ["macos-latest", "ubuntu-latest"]
+        php-version: [ "8.2", "8.3" ]
+        node-version: [ "18.18.2" ]
+        os: [ "macos-latest", "ubuntu-latest" ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: yarn
+          cache: npm
         name: Setup Nodejs v${{matrix.node-version}}
       - uses: shivammathur/setup-php@2.30.4
         with:
@@ -32,9 +32,9 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
         name: Get composer cache directory
-      - run: yarn install --silent --no-progress --frozen-lockfile
-        name: Install yarn modules
-      - run: yarn build
+      - run: npm ci
+        name: Install node modules
+      - run: npm run build
         name: Build vite manifest and bundles
       - run: composer install --prefer-dist
         name: Install composer dependencies
@@ -44,5 +44,5 @@ jobs:
         name: Provision environment variables and generate session key
       - run: php artisan migrate
         name: Run artisan migration
-      - run: php artisan test
+      - run: php artisan test -p
         name: Run unit tests
