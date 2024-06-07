@@ -7,7 +7,8 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.0",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "staudenmeir/belongs-to-through": "^2.16"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0",
