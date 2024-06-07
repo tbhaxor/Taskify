@@ -1,16 +1,17 @@
 name: Continuous Integration
 on:
   pull_request:
-    types: [ synchronize, opened ]
-  push:
-    branches: [ main ]
+    types: [synchronize, opened]
+defaults:
+  run:
+    shell: bash
 jobs:
   unit_testing:
     strategy:
       matrix:
-        php-version: [ "8.2", "8.3" ]
-        node-version: [ "18.18.2" ]
-        os: [ "macos-latest", "ubuntu-latest" ]
+        php-version: ["8.2", "8.3"]
+        node-version: ["18.18.2", "20", "21", "22"]
+        os: ["macos-latest", "ubuntu-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -18,20 +19,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
         name: Setup Nodejs v${{matrix.node-version}}
       - uses: shivammathur/setup-php@2.30.4
+        if: matrix.os == 'windows-latest'
         with:
           php-version: ${{ matrix.php-version }}
-        name: Setup PHP v${{ matrix.php-version }}
-      - id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
+          extensions: fileinfo, pdo_sqlite
+        name: Setup PHP v${{ matrix.php-version }} on Windows
+      - uses: shivammathur/setup-php@2.30.4
+        if: matrix.os != 'windows-latest'
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-        name: Get composer cache directory
+          php-version: ${{ matrix.php-version }}
+        name: Setup PHP v${{ matrix.php-version }} on POSIX
       - run: npm ci
         name: Install node modules
       - run: npm run build
