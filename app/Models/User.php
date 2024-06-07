@@ -4,11 +4,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /**
- * @method static User create(array $attributes = [])
+ * @property ?int $id
+ * @property string $password
+ * @property string $remember_token
  */
 class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authenticatable
 {
@@ -40,7 +43,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
         'password' => 'hashed',
     ];
 
-    public function groups()
+    public function groups(): HasMany
     {
         return $this->hasMany(Group::class);
     }
@@ -50,7 +53,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
      *
      * @return string
      */
-    public function getAuthIdentifierName()
+    public function getAuthIdentifierName(): string
     {
         return 'id';
     }
@@ -58,11 +61,11 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
     /**
      * Get the unique identifier for the user.
      *
-     * @return mixed
+     * @return int
      */
-    public function getAuthIdentifier()
+    public function getAuthIdentifier(): int
     {
-        return $this->id;
+        return (int)$this->id;
     }
 
     /**
@@ -70,7 +73,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
      *
      * @return string
      */
-    public function getAuthPasswordName()
+    public function getAuthPasswordName(): string
     {
         return 'password';
     }
@@ -80,7 +83,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
      *
      * @return string
      */
-    public function getAuthPassword()
+    public function getAuthPassword(): string
     {
         return $this->password;
     }
@@ -90,7 +93,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
      *
      * @return string
      */
-    public function getRememberToken()
+    public function getRememberToken(): string
     {
         return $this->remember_token;
     }
@@ -98,10 +101,10 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
     /**
      * Set the token value for the "remember me" session.
      *
-     * @param  string  $value
+     * @param string $value
      * @return void
      */
-    public function setRememberToken($value)
+    public function setRememberToken($value): void
     {
         $this->remember_token = $value;
     }
@@ -111,7 +114,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
      *
      * @return string
      */
-    public function getRememberTokenName()
+    public function getRememberTokenName(): string
     {
         return 'remember_token';
     }
