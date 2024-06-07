@@ -2,19 +2,13 @@
 
 namespace Tests\Feature\Http\Controllers\Groups;
 
-use App\Models\Group;
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class DeleteGroupControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        User::factory(10)->create();
-        Group::factory(50)->create();
-    }
+    use RefreshDatabase, TestHelper;
 
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {
@@ -24,23 +18,19 @@ class DeleteGroupControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_403_on_another_user_group(): void
+    public function test_should_forbid_unauthorized_users(): void
     {
-        $user = User::query()->whereHas('groups')->get()->first();
-        $group = Group::query()->where('user_id', '!=', $user->id)->get()->first();
-
-        $response = $this->actingAs($user)->get(route('group.delete', [
-            'group' => $group
+        $response = $this->actingAs($this->createUser())->get(route('group.delete', [
+            'group' => $this->createGroup()
         ]));
         $response->assertForbidden();
     }
 
     public function test_should_return_view_on_get_method()
     {
-        $user = User::query()->whereHas('groups')->get()->first();
-        $group = $user->groups->random(1)->first();
+        $group = $this->createGroup();
 
-        $response = $this->actingAs($user)->get(route('group.delete', [
+        $response = $this->actingAs($group->user)->get(route('group.delete', [
             'group' => $group
         ]));
         $response->assertOk();
@@ -50,10 +40,10 @@ class DeleteGroupControllerTest extends TestCase
 
     public function test_should_delete_and_return_to_group_index()
     {
-        $user = User::query()->whereHas('groups')->get()->first();
-        $group = $user->groups->random(1)->first();
 
-        $response = $this->actingAs($user)->delete(route('group.delete', [
+        $group = $this->createGroup();
+
+        $response = $this->actingAs($group->user)->delete(route('group.delete', [
             'group' => $group
         ]));
         $response->assertRedirectToRoute('group.index', [

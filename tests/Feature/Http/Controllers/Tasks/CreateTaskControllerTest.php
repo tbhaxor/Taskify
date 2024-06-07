@@ -2,40 +2,29 @@
 
 namespace Tests\Feature\Http\Controllers\Tasks;
 
-use App\Models\Group;
-use App\Models\Task;
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class CreateTaskControllerTest extends TestCase
 {
-    protected Group $group;
-    protected User $user;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        User::factory(10)->create();
-        Group::factory(50)->create();
-        Task::factory(50)->create();
-        
-        $this->user = User::query()->whereHas('groups')->get()->first();
-        $this->group = $this->user->groups->random(1)->first();
-    }
+    use RefreshDatabase, WithFaker, TestHelper;
 
     public function test_should_redirect_to_login_page()
     {
         $response = $this->get(route('task.create', [
-            'group' => $this->group
+            'group' => $this->createGroup()
         ]));
         $response->assertRedirectToRoute('auth.login');
     }
 
     public function test_should_return_view_on_get_method(): void
     {
-        $response = $this->actingAs($this->user)->get(route('task.create', [
-            'group' => $this->group
+        $group = $this->createGroup();
+
+        $response = $this->actingAs($group->user)->get(route('task.create', [
+            'group' => $group
         ]));
         $response->assertOk();
         $response->assertViewIs('tasks.create');
@@ -43,17 +32,19 @@ class CreateTaskControllerTest extends TestCase
 
     public function test_should_reject_on_invalid_payload(): void
     {
-        $response = $this->actingAs($this->user)->post(route('task.create', [
-            'group' => $this->group
+        $group = $this->createGroup();
+
+        $response = $this->actingAs($group->user)->post(route('task.create', [
+            'group' => $group
         ]));
         $response->assertSessionHasErrors([
             'title' => 'The title field is required.'
         ]);
 
-        $response = $this->actingAs($this->user)->post(route('task.create', [
-            'group' => $this->group
+        $response = $this->actingAs($group->user)->post(route('task.create', [
+            'group' => $group
         ]), [
-            'title' => fake()->regexify('/[a-zA-Z0-9]{300}/')
+            'title' => $this->faker->regexify('/[a-zA-Z0-9]{300}/')
         ]);
         $response->assertSessionHasErrors([
             'title' => 'The title field must not be greater than 64 characters.'
@@ -62,16 +53,17 @@ class CreateTaskControllerTest extends TestCase
 
     public function test_should_accept_valid_payload()
     {
+        $group = $this->createGroup();
         $payload = [
-            'title' => fake()->text(64),
-            'description' => fake()->text(),
+            'title' => $this->faker->text(64),
+            'description' => $this->faker->text(),
         ];
 
-        $response = $this->actingAs($this->user)->post(route('task.create', [
-            'group' => $this->group
+        $response = $this->actingAs($group->user)->post(route('task.create', [
+            'group' => $group
         ]), $payload);
         $response->assertRedirectToRoute('group.show', [
-            'group' => $this->group,
+            'group' => $group,
             'message' => 'New task has been created.'
         ]);
         $this->assertDatabaseHas('tasks', $payload);

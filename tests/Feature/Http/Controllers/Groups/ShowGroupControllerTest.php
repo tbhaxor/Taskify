@@ -2,19 +2,13 @@
 
 namespace Tests\Feature\Http\Controllers\Groups;
 
-use App\Models\Group;
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class ShowGroupControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        User::factory(10)->create();
-        Group::factory(50)->create();
-    }
+    use RefreshDatabase, TestHelper;
 
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {
@@ -26,21 +20,17 @@ class ShowGroupControllerTest extends TestCase
 
     public function test_should_return_403_on_another_user_group(): void
     {
-        $user = User::all()->random(1)->first();
-        $group = Group::query()->where('user_id', '!=', $user->id)->get()->first();
-
-        $response = $this->actingAs($user)->get(route('group.show', [
-            'group' => $group
+        $response = $this->actingAs($this->createUser())->get(route('group.show', [
+            'group' => $this->createGroup()
         ]));
         $response->assertForbidden();
     }
 
     public function test_should_return_valid_group(): void
     {
-        $user = User::query()->whereHas('groups')->get()->first();
-        $group = $user->groups->random(1)->first();
+        $group = $this->createGroup();
 
-        $response = $this->actingAs($user)->get(route('group.show', [
+        $response = $this->actingAs($group->user)->get(route('group.show', [
             'group' => $group
         ]));
         $response->assertOk();
@@ -52,12 +42,10 @@ class ShowGroupControllerTest extends TestCase
 
     public function test_should_redirect_to_all_groups_on_invalid_group_id()
     {
-        /** @var User $user */
-        $user = User::query()->whereHas('groups')->get()->first();
-        $group = $user->groups->first();
+        $group = $this->createGroup();
         $group->delete();
 
-        $response = $this->actingAs($user)->get(route('group.show', [
+        $response = $this->actingAs($group->user)->get(route('group.show', [
             'group' => $group
         ]));
         $response->assertRedirectToRoute('group.index', [

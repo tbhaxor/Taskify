@@ -2,20 +2,15 @@
 
 namespace Tests\Feature\Http\Controllers\ProfileSettings;
 
-use App\Models\User;
-use DB;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class UpdateProfileSettingsControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        User::factory(10)->create();
-    }
+    use RefreshDatabase, WithFaker, TestHelper;
 
     public function test_should_return_to_login_when_unauthenticated()
     {
@@ -28,7 +23,7 @@ class UpdateProfileSettingsControllerTest extends TestCase
      */
     public function test_should_return_view_on_get_method(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUser();
 
         $response = $this->actingAs($user)->get(route('profile.edit'));
         $response->assertViewIs('profile.edit');
@@ -36,9 +31,10 @@ class UpdateProfileSettingsControllerTest extends TestCase
 
     public function test_should_reject_on_invalid_payload()
     {
-        $user = User::factory()->create();
-        $password = fake()->password();
-        $new_password = fake()->password();
+        $user = $this->createUser();
+        $anotherUser = $this->createUser();
+        $password = $this->faker->password();
+        $new_password = $this->faker->password();
         $user->update([
             'password' => Hash::make($password)
         ]);
@@ -52,33 +48,33 @@ class UpdateProfileSettingsControllerTest extends TestCase
         ]);
 
         $response = $executor([
-            'name' => fake()->name(),
-            'email' => fake()->name(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->name(),
         ]);
         $response->assertSessionHasErrors([
             'email' => 'The email field must be a valid email address.'
         ]);
 
         $response = $executor([
-            'name' => fake()->name(),
-            'email' => User::where('email', '!=', $user->email)->get()->random(1)->first()->email,
+            'name' => $this->faker->name(),
+            'email' => $anotherUser->email,
         ]);
         $response->assertSessionHasErrors([
             'email' => 'The email has already been taken.'
         ]);
 
         $response = $executor([
-            'name' => fake()->name(),
-            'email' => fake()->email(),
-            'old_password' => fake()->password()
+            'name' => $this->faker->name(),
+            'email' => $this->faker->email(),
+            'old_password' => $this->faker->password()
         ]);
         $response->assertSessionHasErrors([
             'old_password' => 'The password is incorrect.'
         ]);
 
         $response = $executor([
-            'name' => fake()->name(),
-            'email' => fake()->email(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->email(),
             'old_password' => $password,
         ]);
         $response->assertSessionHasErrors([
@@ -86,8 +82,8 @@ class UpdateProfileSettingsControllerTest extends TestCase
         ]);
 
         $response = $executor([
-            'name' => fake()->name(),
-            'email' => fake()->email(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->email(),
             'old_password' => $password,
             'new_password' => $new_password,
         ]);
@@ -96,11 +92,11 @@ class UpdateProfileSettingsControllerTest extends TestCase
         ]);
 
         $response = $executor([
-            'name' => fake()->name(),
-            'email' => fake()->email(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->email(),
             'old_password' => $password,
             'new_password' => $new_password,
-            'confirm_new_password' => fake()->password()
+            'confirm_new_password' => $this->faker->password()
         ]);
         $response->assertSessionHasErrors([
             'confirm_new_password' => 'The confirm new password field must match new password.'
@@ -109,17 +105,17 @@ class UpdateProfileSettingsControllerTest extends TestCase
 
     public function test_should_accept_valid_payload()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser();
         $old_user = collect($user->toArray());
-        $old_password = fake()->password();
-        $new_password = fake()->password();
+        $old_password = $this->faker->password();
+        $new_password = $this->faker->password();
         $user->update([
             'password' => Hash::make($old_password)
         ]);
         $user = $user->fresh();
         $payload = [
-            'name' => fake()->name(),
-            'email' => fake()->email(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->email(),
             'old_password' => $old_password,
             'new_password' => $new_password,
             'confirm_new_password' => $new_password
