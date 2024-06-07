@@ -2,16 +2,15 @@
 
 namespace Tests\Feature\Http\Controllers\Auth;
 
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class SignupControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        User::factory(1)->create();
-    }
+
+    use RefreshDatabase, WithFaker, TestHelper;
 
     public function test_should_return_view_on_get_method(): void
     {
@@ -22,7 +21,7 @@ class SignupControllerTest extends TestCase
 
     public function test_should_fail_on_invalid_payload(): void
     {
-        $password = fake()->password();
+        $password = $this->faker->password();
 
         $response = $this->post(route('auth.signup'));
         $response->assertSessionHasErrors([
@@ -33,8 +32,8 @@ class SignupControllerTest extends TestCase
         ]);
 
         $response = $this->post(route('auth.signup'), [
-            'name' => fake()->name(),
-            'email' => User::all()->random(1)->first()->email,
+            'name' => $this->faker->name(),
+            'email' => $this->createUser()->email,
             'password' => $password,
             'confirm_password' => $password,
         ]);
@@ -43,10 +42,10 @@ class SignupControllerTest extends TestCase
         ]);
 
         $response = $this->post(route('auth.signup'), [
-            'name' => fake()->name(),
-            'email' => fake()->email(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->email(),
             'password' => $password,
-            'confirm_password' => fake()->password(),
+            'confirm_password' => $this->faker->password(),
         ]);
         $response->assertSessionHasErrors([
             'confirm_password' => 'The confirm password field must match password.'
@@ -55,14 +54,18 @@ class SignupControllerTest extends TestCase
 
     public function test_should_redirect_to_login_page_on_success(): void
     {
-        $password = fake()->password();
+        $password = $this->faker->password();
+        $email = $this->faker->email();
 
         $response = $this->post(route('auth.signup'), [
-            'name' => fake()->name(),
-            'email' => fake()->email(),
+            'name' => $this->faker->name(),
+            'email' => $email,
             'password' => $password,
             'confirm_password' => $password,
         ]);
         $response->assertRedirectToRoute('auth.login');
+        $this->assertDatabaseHas('users', [
+            'email' => $email
+        ]);
     }
 }

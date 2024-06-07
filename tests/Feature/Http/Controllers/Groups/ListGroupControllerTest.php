@@ -2,19 +2,13 @@
 
 namespace Tests\Feature\Http\Controllers\Groups;
 
-use App\Models\Group;
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class ListGroupControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        User::factory(10)->create();
-        Group::factory(50)->create();
-    }
+    use RefreshDatabase, TestHelper;
 
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {
@@ -24,11 +18,12 @@ class ListGroupControllerTest extends TestCase
 
     public function test_should_return_only_groups_associated_with_users(): void
     {
-        $user = User::all()->random(1)->first();
+        $user = $this->createUser();
+        $groups = $this->createGroups(attributes: ['user_id' => $user->id]);
 
         $response = $this->actingAs($user)->get(route('group.index'));
         $response->assertOk();
         $response->assertViewIs('groups.index');
-        $response->assertViewHas('groups', $user->groups->isEmpty() ? [] : $user->groups);
+        $response->assertViewHas('groups', $groups);
     }
 }

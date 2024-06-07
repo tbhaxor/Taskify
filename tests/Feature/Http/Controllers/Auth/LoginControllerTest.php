@@ -2,17 +2,15 @@
 
 namespace Tests\Feature\Http\Controllers\Auth;
 
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class LoginControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        User::factory(5)->create();
-    }
+    use RefreshDatabase, TestHelper, WithFaker;
 
     /**
      * A basic feature test example.
@@ -27,15 +25,15 @@ class LoginControllerTest extends TestCase
     public function test_should_redirect_authenticated_user_to_groups()
     {
 
-        $response = $this->actingAs(User::all()->random(1)->first())->get(route('auth.login'));
+        $response = $this->actingAs($this->createUser())->get(route('auth.login'));
         $response->assertRedirectToRoute('group.index');
     }
 
     public function test_should_fail_on_incorrect_credentials()
     {
         $response = $this->post(route('auth.login'), [
-            'email' => fake()->email(),
-            'password' => fake()->password(),
+            'email' => $this->faker->email(),
+            'password' => $this->faker->password(),
         ]);
         $response->assertSessionHasErrors([
             'credentials' => 'Invalid login credentials.'
@@ -51,17 +49,17 @@ class LoginControllerTest extends TestCase
         ]);
 
         $response = $this->post(route('auth.login'), [
-            'email' => fake()->text(),
-            'password' => fake()->password(),
+            'email' => $this->faker->text(),
+            'password' => $this->faker->password(),
         ]);
         $response->assertSessionHasErrors([
             'email' => 'The email field must be a valid email address.',
         ]);
 
         $response = $this->post(route('auth.login'), [
-            'email' => fake()->email(),
-            'password' => fake()->password(),
-            'remember' => fake()->text()
+            'email' => $this->faker->email(),
+            'password' => $this->faker->password(),
+            'remember' => $this->faker->text()
         ]);
         $response->assertSessionHasErrors([
             'remember' => 'The remember field must be true or false.'
@@ -70,13 +68,10 @@ class LoginControllerTest extends TestCase
 
     public function test_should_redirect_intended_on_successful_login()
     {
-        $user = User::all()
-            ->random(1)
-            ->select(['email', 'password'])
-            ->first();
-        $credentials = Collection::make($user)
+
+        $credentials = Collection::make($this->createUser()->only(['email', 'password']))
             ->merge([
-                'remember' => fake()->randomElement([1, 0])
+                'remember' => $this->faker->randomElement([1, 0])
             ])
             ->toArray();
         $response = $this->post(route('auth.login'), $credentials);
@@ -85,13 +80,9 @@ class LoginControllerTest extends TestCase
 
     public function test_should_redirect_to_groups_after_login()
     {
-        $user = User::all()
-            ->random(1)
-            ->select(['email', 'password'])
-            ->first();
-        $credentials = Collection::make($user)
+        $credentials = Collection::make($this->createUser()->only(['email', 'password']))
             ->merge([
-                'remember' => fake()->randomElement([1, 0])
+                'remember' => $this->faker->randomElement([1, 0])
             ])
             ->toArray();
 

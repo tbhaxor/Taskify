@@ -2,17 +2,14 @@
 
 namespace Tests\Feature\Http\Controllers\ProfileSettings;
 
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\TestHelper;
 
 class DeleteProfileSettingsControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
 
-        User::factory(5)->create();
-    }
+    use RefreshDatabase, TestHelper;
 
     public function test_should_return_to_login_when_unauthenticated()
     {
@@ -22,7 +19,7 @@ class DeleteProfileSettingsControllerTest extends TestCase
 
     public function test_should_delete_user_and_redirect_to_logout(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUser();
 
         $response = $this->actingAs($user)->post(route('profile.delete'));
         $response->assertRedirectToRoute('auth.logout');
