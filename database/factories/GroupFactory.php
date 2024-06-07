@@ -20,7 +20,7 @@ class GroupFactory extends Factory
         return [
             'title' => fake()->text(64),
             'description' => fake()->text(),
-            'user_id' => User::all()->random(1)->first()->id
+            'user_id' => User::factory()->create()->id,
         ];
     }
 }
