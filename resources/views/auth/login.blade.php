@@ -26,7 +26,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" required
+                        <input type="password" class="form-control @error('password') is-invalid @enderror"
+                               required
                                id="password" name="password" placeholder="Enter your password...">
                         @error('password')
                         <div class="form-text text-danger">{{ $message }}</div>
@@ -38,7 +39,8 @@
                             <label for="remember" class="form-label">Remember Login</label>
                         </div>
                         <div class="col">
-                            <a href="{{ route('auth.login') }}" class="float-end card-link">Forgot Password?</a>
+                            <a href="{{ route('auth.password.forgot') }}" class="float-end card-link">Forgot
+                                Password?</a>
                         </div>
                     </div>
                     <div class="d-grid mb-3">
@@ -55,5 +57,15 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('scripts')
+    <script>
+        $(document).ready(function () {
+            const qp = new URLSearchParams(window.location.search)
+            if (qp.has('message')) {
+                $('hr').after(`<div class="alert alert-success" role="alert">${qp.get('message')}</div>`)
+            }
+        })
+    </script>
 @endsection
