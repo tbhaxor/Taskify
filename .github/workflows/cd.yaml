@@ -1,0 +1,72 @@
+name: Image Builder
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  docker_image:
+    name: Build and Push Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout repository
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.2
+          cache: npm
+        name: Setup Nodejs v18.18.2
+      - uses: shivammathur/setup-php@2.30.4
+        with:
+          php-version: 8.3
+        name: Setup PHP v8.3
+      - run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+        id: composer-cache
+        name: Get Composer Cache Directory
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - run: npm ci
+        name: Install node modules
+      - run: npm run build
+        name: Build vite manifest and bundles
+      - run: composer install --prefer-dist --no-dev
+        name: Install composer dependencies
+        env:
+          APP_ENV: not-local
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+        name: Login to GitHub Container Registry
+      - uses: docker/setup-buildx-action@v3
+        name: Set up Buildx for Docker
+      - id: docker-metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/taskify
+          tags: |
+            type=sha
+            type=semver,pattern=v{{version}}
+            type=raw,value=latest
+        name: Generate Docker Metadata for Image
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.docker-metadata.outputs.tags }}
+          labels: ${{ steps.docker-metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        name: Build and Push the Docker Image to ghcr.io
