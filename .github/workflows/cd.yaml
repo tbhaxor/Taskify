@@ -55,7 +55,7 @@ jobs:
       - id: docker-metadata
         uses: docker/metadata-action@v5
         with:
-          images: tbhaxor/taskify
+          images: gchr.io/${{ github.actor }}/taskify
           tags: |
             type=sha
             type=ref,event=tag
