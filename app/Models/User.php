@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property ?int $id
  * @property string $password
- * @property string $remember_token
+ * @property ?string $remember_token
  */
 class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authenticatable
 {
@@ -91,9 +91,9 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
     /**
      * Get the token value for the "remember me" session.
      *
-     * @return string
+     * @return ?string
      */
-    public function getRememberToken(): string
+    public function getRememberToken(): ?string
     {
         return $this->remember_token;
     }
