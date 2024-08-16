@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property User $user
+ * @mixin IdeHelperGroup
  */
 class Group extends Model
 {

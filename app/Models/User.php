@@ -12,8 +12,9 @@ use Illuminate\Notifications\Notifiable;
  * @property ?int $id
  * @property string $password
  * @property ?string $remember_token
+ * @mixin IdeHelperUser
  */
-class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authenticatable
+class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
@@ -66,26 +67,6 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\Authent
     public function getAuthIdentifier(): int
     {
         return (int)$this->id;
-    }
-
-    /**
-     * Get the name of the password attribute for the user.
-     *
-     * @return string
-     */
-    public function getAuthPasswordName(): string
-    {
-        return 'password';
-    }
-
-    /**
-     * Get the password for the user.
-     *
-     * @return string
-     */
-    public function getAuthPassword(): string
-    {
-        return $this->password;
     }
 
     /**
