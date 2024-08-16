@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
+/**
+ * @mixin IdeHelperTask
+ */
 class Task extends Model
 {
     use HasFactory, BelongsToThrough;
