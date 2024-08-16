@@ -4,11 +4,7 @@ import laravel from "laravel-vite-plugin";
 export default defineConfig({
     plugins: [
         laravel({
-            input: [
-                "resources/css/app.css",
-                "resources/js/app.js",
-                "resources/js/message-handler.js",
-            ],
+            input: ["resources/js/message-handler.js"],
             refresh: true,
         }),
     ],
