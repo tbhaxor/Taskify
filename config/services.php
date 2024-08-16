@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'zitadel' => [
+        'base_url' => env('ZITADEL_BASE_URL'),
+        'client_id' => env('ZITADEL_CLIENT_ID'),
+        'org_id' => env('ZITADEL_ORGANIZATION_ID')
+    ]
+
 ];
