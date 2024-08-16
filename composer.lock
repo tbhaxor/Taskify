@@ -4,8 +4,51 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8f1cbcebd63df8c4eb0658b9ed17e6b1",
+    "content-hash": "cb045483cb1a904b291666996f009e2d",
     "packages": [
+        {
+            "name": "adriengras/pkce-php",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AdrienGras/pkce-php.git",
+                "reference": "db7d0bf258420cde159ceedbc9c2da6ea401e42e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AdrienGras/pkce-php/zipball/db7d0bf258420cde159ceedbc9c2da6ea401e42e",
+                "reference": "db7d0bf258420cde159ceedbc9c2da6ea401e42e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "symfony/test-pack": "^1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AdrienGras\\PKCE\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrien Gras",
+                    "email": "agr@owlnext.fr"
+                }
+            ],
+            "description": "A simple utility to use PKCE (Proof Key for Code Exchange) in PHP.",
+            "support": {
+                "issues": "https://github.com/AdrienGras/pkce-php/issues",
+                "source": "https://github.com/AdrienGras/pkce-php/tree/v1.0.3"
+            },
+            "time": "2023-08-25T14:40:01+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.12.1",
