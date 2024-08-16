@@ -1,0 +1,10 @@
+--- vendor/laravel/framework/src/Illuminate/Support/ServiceProvider.php.bak	2024-08-16 03:05:32.372781541 +0530
++++ vendor/laravel/framework/src/Illuminate/Support/ServiceProvider.php	2024-08-16 03:05:35.706141072 +0530
+@@ -15,7 +15,7 @@
+     /**
+      * The application instance.
+      *
+-     * @var \Illuminate\Contracts\Foundation\Application
++     * @var \Illuminate\Foundation\Application
+      */
+     protected $app;
