@@ -71,3 +71,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
         name: Build and Push the Docker Image to ghcr.io
+      - run: |
+          curl '${{ secrets.RENDER_DEPLOY_URL }}'
+        name: Trigger deploy hook on render.com
