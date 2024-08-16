@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CallbackController extends Controller
 {
@@ -26,8 +27,9 @@ class CallbackController extends Controller
             'redirect_uri' => route('auth.callback'),
             'grant_type' => 'authorization_code',
             'code_verifier' => $request->session()->get('zitadel_pkce')['code_verifier'],
-
         ];
+
+        Log::info('Retrieved information', $payload);
 
         $response = Http::asForm()->post(config('services.zitadel.base_url') . '/oauth/v2/token?' . http_build_query($payload));
         $tokens = Arr::only($response->json(), ['id_token', 'access_token']);
