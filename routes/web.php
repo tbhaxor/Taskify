@@ -5,8 +5,6 @@ use App\Http\Controllers\Groups\DeleteGroupController;
 use App\Http\Controllers\Groups\EditGroupController;
 use App\Http\Controllers\Groups\ListGroupController;
 use App\Http\Controllers\Groups\ShowGroupController;
-use App\Http\Controllers\ProfileSettings\DeleteProfileSettingsController;
-use App\Http\Controllers\ProfileSettings\UpdateProfileSettingsController;
 use App\Http\Controllers\Tasks\CreateTaskController;
 use App\Http\Controllers\Tasks\DeleteTaskController;
 use App\Http\Controllers\Tasks\EditTaskController;
@@ -21,11 +19,6 @@ Route::get('/', function () {
 require 'auth.php';
 
 Route::middleware('auth')->group(function () {
-    Route::name('profile.')->prefix('profile')->group(function () {
-        Route::match(['GET', 'POST'], 'edit', UpdateProfileSettingsController::class)->name('edit');
-        Route::post('delete', DeleteProfileSettingsController::class)->name('delete');
-    });
-
     Route::name('group.')->prefix('groups')->group(function () {
         Route::get('', ListGroupController::class)->name('index');
         Route::match(['GET', 'POST'], 'create', CreateGroupController::class)->name('create');
