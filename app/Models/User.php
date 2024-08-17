@@ -9,9 +9,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /**
- * @property ?int $id
- * @property string $password
- * @property ?string $remember_token
  * @mixin IdeHelperUser
  */
 class User extends Authenticatable
@@ -99,4 +96,10 @@ class User extends Authenticatable
     {
         return 'remember_token';
     }
+
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class)->orWhereNull('user_id');
+    }
+
 }
