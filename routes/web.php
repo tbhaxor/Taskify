@@ -5,6 +5,11 @@ use App\Http\Controllers\Groups\DeleteGroupController;
 use App\Http\Controllers\Groups\EditGroupController;
 use App\Http\Controllers\Groups\ListGroupController;
 use App\Http\Controllers\Groups\ShowGroupController;
+use App\Http\Controllers\Role\CreateRoleController;
+use App\Http\Controllers\Role\DeleteRoleController;
+use App\Http\Controllers\Role\EditRoleController;
+use App\Http\Controllers\Role\ListRoleController;
+use App\Http\Controllers\Role\ShowRoleController;
 use App\Http\Controllers\Tasks\CreateTaskController;
 use App\Http\Controllers\Tasks\DeleteTaskController;
 use App\Http\Controllers\Tasks\EditTaskController;
@@ -49,4 +54,19 @@ Route::middleware('auth')->group(function () {
                 Route::match(['GET', 'DELETE'], '{task}/delete', DeleteTaskController::class)->name('delete');
             });
         });
+
+    Route::name('role.')->prefix('roles')->group(function () {
+        Route::get('', ListRoleController::class)->name('index');
+        Route::match(['GET', 'POST'], 'create', CreateRoleController::class)->name('create');
+
+        Route::prefix('{role}')->missing(function () {
+            return to_route('role.index', [
+                'error' => 'Requested resource does not exist.',
+            ]);
+        })->group(function () {
+            Route::get('', ShowRoleController::class)->name('show');
+            Route::match(['GET', 'POST'], 'edit', EditRoleController::class)->name('edit');
+            Route::match(['GET', 'POST'], 'delete', DeleteRoleController::class)->name('delete');
+        });
+    });
 });
