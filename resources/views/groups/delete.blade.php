@@ -18,7 +18,7 @@
         $(document).ready(function() {
             $('#goBackBtn').click(function(e) {
                 e.preventDefault();
-                if (history.length == 1) {
+                if (history.length === 1) {
                     window.location.href = '{{ route('group.index' )}}';
                 } else {
                     history.back();
