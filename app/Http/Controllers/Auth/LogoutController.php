@@ -3,25 +3,22 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
 
 class LogoutController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): RedirectResponse
     {
         auth()->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        $payload = [
-            'id_token_hint' => $request->session()->get('zitadel_id_token'),
-            'client_id' => config('services.zitadel.client_id'),
-            'post_logout_redirect_uri' => config('app.url')
-        ];
-        return redirect()->away(config('services.zitadel.base_url') . '/oidc/v1/end_session?' . http_build_query($payload));
+        return redirect()->away(Socialite::driver('zitadel')->getLogoutUrl($request->session()->get('zitadel_id_token')));
     }
 }
