@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -100,6 +101,22 @@ class User extends Authenticatable
     public function roles(): HasMany
     {
         return $this->hasMany(Role::class)->orWhereNull('user_id');
+    }
+
+    /**
+     * @param Group $group
+     * @return HasOneThrough<Group>
+     */
+    public function roleOnGroup(Group $group): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Role::class,
+            UserGroupRole::class,
+            'user_id', // The field referencing current model in the through class
+            'id', // The local field in the related schema
+            'id',
+            'role_id' // The field referencing related pk in the through class
+        )->where('group_id', $group->id);
     }
 
 }
