@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Groups;
 
+use App\Enums\UserPermission;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ShowGroupRequest extends FormRequest
@@ -12,7 +13,7 @@ class ShowGroupRequest extends FormRequest
     public function authorize(): bool
     {
 
-        return auth()->id() == $this->route()->parameter('group')->user_id;
+        return $this->route('group')->user_id == $this->user()->id || $this->user()->can(UserPermission::VIEW_GROUPS->value, $this->route('group'));
     }
 
     /**

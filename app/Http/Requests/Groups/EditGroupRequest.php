@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Groups;
 
-use App\Models\Group;
+use App\Enums\UserPermission;
 use Illuminate\Foundation\Http\FormRequest;
 
 class EditGroupRequest extends FormRequest
@@ -12,7 +12,7 @@ class EditGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->id() == $this->route()->parameter('group')->user_id;
+        return $this->route('group')->user_id == $this->user()->id || $this->user()->can(UserPermission::EDIT_GROUPS->value, $this->route('group'));
     }
 
     /**

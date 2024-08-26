@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tasks;
 
+use App\Enums\UserPermission;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateTaskRequest extends FormRequest
@@ -11,7 +12,7 @@ class CreateTaskRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->route()->parameter('group')->user_id == auth()->id();
+        return $this->route('group')->user_id == $this->user()->id || $this->user()->can(UserPermission::CREATE_TASKS->value, $this->route('group'));
     }
 
     /**
