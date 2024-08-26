@@ -25,7 +25,7 @@ class CreateRoleController extends Controller
         Permission::whereIn('value', $request->safe()->input('permissions'))
             ->get('id')
             ->each(fn(Permission $permission) => $role->permissions()->attach($permission->id));
-        
+
         return to_route('role.index');
     }
 }
