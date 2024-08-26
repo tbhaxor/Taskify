@@ -2,48 +2,53 @@
 
 namespace Tests\Feature\Http\Controllers\Tasks;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Tests\Traits\TestHelper;
 
 class CreateTaskControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, TestHelper;
+    use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page()
+    protected function setUp(): void
     {
+        parent::setUp();
+        $this->seed();
+    }
+
+    public function test_should_redirect_to_login_page_when_unauthenticated()
+    {
+        $group = Group::factory()->create();
+
         $response = $this->get(route('task.create', [
-            'group' => $this->createGroup()
+            'group' => $group
         ]));
         $response->assertRedirectToRoute('auth.login');
     }
 
     public function test_should_return_view_on_get_method(): void
     {
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($group->user)->get(route('task.create', [
-            'group' => $group
-        ]));
+        $response = $this->actingAs($user)->get(route('task.create', ['group' => $group]));
         $response->assertOk();
         $response->assertViewIs('tasks.create');
     }
 
-    public function test_should_reject_on_invalid_payload(): void
+    public function test_should_not_process_invalid_payload_and_return_validation_errors(): void
     {
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($group->user)->post(route('task.create', [
-            'group' => $group
-        ]));
+        $response = $this->actingAs($user)->post(route('task.create', ['group' => $group]));
         $response->assertSessionHasErrors([
             'title' => 'The title field is required.'
         ]);
 
-        $response = $this->actingAs($group->user)->post(route('task.create', [
-            'group' => $group
-        ]), [
+        $response = $this->actingAs($user)->post(route('task.create', ['group' => $group]), [
             'title' => $this->faker->regexify('/[a-zA-Z0-9]{300}/')
         ]);
         $response->assertSessionHasErrors([
@@ -51,17 +56,17 @@ class CreateTaskControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_accept_valid_payload()
+    public function test_should_created_task_on_valid_payload_and_return_to_group_show()
     {
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
+
         $payload = [
             'title' => $this->faker->text(64),
             'description' => $this->faker->text(),
         ];
 
-        $response = $this->actingAs($group->user)->post(route('task.create', [
-            'group' => $group
-        ]), $payload);
+        $response = $this->actingAs($user)->post(route('task.create', ['group' => $group]), $payload);
         $response->assertRedirectToRoute('group.show', [
             'group' => $group,
             'message' => 'New task has been created.'

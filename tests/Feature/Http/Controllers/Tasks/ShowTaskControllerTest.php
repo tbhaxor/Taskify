@@ -2,43 +2,56 @@
 
 namespace Tests\Feature\Http\Controllers\Tasks;
 
+use App\Models\Group;
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Tests\Traits\TestHelper;
 
 class ShowTaskControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, TestHelper;
+    use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page()
+    protected function setUp(): void
     {
-        $task = $this->createTask();
+        parent::setUp();
+        $this->seed();
+    }
+
+    public function test_should_redirect_to_login_page_when_unauthenticated()
+    {
+        $group = Group::factory()->create();
+        $task = Task::factory()->create(['group_id' => $group->id]);
 
         $response = $this->get(route('task.show', [
-            'group' => $task->group,
+            'group' => $group,
             'task' => $task
         ]));
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_403_on_some_other_user()
+    public function test_should_forbid_viewing_tasks_of_groups_that_belongs_to_other_users()
     {
-        $task = $this->createTask();
+        $user = User::factory()->create();
+        $group = Group::factory()->create();
+        $task = Task::factory()->create(['group_id' => $group->id]);
 
-        $response = $this->actingAs($this->createUser())->get(route('task.show', [
-            'group' => $task->group,
+        $response = $this->actingAs($user)->get(route('task.show', [
+            'group' => $group,
             'task' => $task
         ]));
         $response->assertForbidden();
     }
 
-    public function test_should_return_valid_task(): void
+    public function test_should_return_valid_task_on_get_request(): void
     {
-        $task = $this->createTask();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
+        $task = Task::factory()->create(['group_id' => $group->id]);
 
-        $response = $this->actingAs($task->user)->get(route('task.show', [
-            'group' => $task->group,
+        $response = $this->actingAs($user)->get(route('task.show', [
+            'group' => $group,
             'task' => $task
         ]));
         $response->assertOk();
@@ -49,10 +62,12 @@ class ShowTaskControllerTest extends TestCase
 
     public function test_should_return_as_missing_when_not_belongs_to_group()
     {
-        $task = $this->createTask();
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
+        $group2 = Group::factory()->create(['user_id' => $user->id]);
+        $task = Task::factory()->create(['group_id' => $group2->id]);
 
-        $response = $this->actingAs($task->user)->get(route('task.show', [
+        $response = $this->actingAs($user)->get(route('task.show', [
             'group' => $group,
             'task' => $task
         ]));
@@ -64,15 +79,15 @@ class ShowTaskControllerTest extends TestCase
 
     public function test_should_return_as_missing_when_task_does_not_exist()
     {
-        $task = $this->createTask();
-        $task->delete();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($task->user)->get(route('task.show', [
-            'group' => $task->group,
-            'task' => $task,
+        $response = $this->actingAs($user)->get(route('task.show', [
+            'group' => $group,
+            'task' => 999999,
         ]));
         $response->assertRedirectToRoute('group.show', [
-            'group' => $task->group,
+            'group' => $group,
             'error' => 'Requested task does not exist.'
         ]);
     }

@@ -8,12 +8,11 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Tests\Traits\TestHelper;
 
 class ShowRoleControllerTest extends TestCase
 {
 
-    use RefreshDatabase, WithFaker, TestHelper;
+    use RefreshDatabase, WithFaker;
 
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {

@@ -2,16 +2,23 @@
 
 namespace Tests\Feature\Http\Controllers\Groups;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Tests\Traits\TestHelper;
 
 class EditGroupControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, TestHelper;
+    use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthorized(): void
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+    }
+
+    public function test_should_redirect_to_login_page_when_unauthenticated(): void
     {
         $response = $this->get(route('group.edit', [
             'group' => 1
@@ -19,19 +26,23 @@ class EditGroupControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_403_on_another_user_group(): void
+    public function test_should_forbid_editing_another_user_groups(): void
     {
-        $response = $this->actingAs($this->createUser())->get(route('group.edit', [
-            'group' => $this->createGroup()
+        $user = User::factory()->create();
+        $group = Group::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('group.edit', [
+            'group' => $group
         ]));
         $response->assertForbidden();
     }
 
     public function test_should_return_view_on_get_method()
     {
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($group->user)->get(route('group.edit', [
+        $response = $this->actingAs($user)->get(route('group.edit', [
             'group' => $group
         ]));
         $response->assertOk();
@@ -41,16 +52,17 @@ class EditGroupControllerTest extends TestCase
 
     public function test_should_reject_on_invalid_payload()
     {
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($group->user)->put(route('group.edit', [
+        $response = $this->actingAs($user)->put(route('group.edit', [
             'group' => $group
         ]));
         $response->assertSessionHasErrors([
             'title' => 'The title field is required.',
         ]);
 
-        $response = $this->actingAs($group->user)->put(route('group.edit', [
+        $response = $this->actingAs($user)->put(route('group.edit', [
             'group' => $group
         ]), [
             'title' => $this->faker->regexify('/[A-Za-z0-9]{200}/')
@@ -62,11 +74,12 @@ class EditGroupControllerTest extends TestCase
 
     public function test_should_accept_valid_payload()
     {
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
 
         $title = $this->faker->text(64);
 
-        $response = $this->actingAs($group->user)->put(route('group.edit', [
+        $response = $this->actingAs($user)->put(route('group.edit', [
             'group' => $group
         ]), [
             'title' => $title

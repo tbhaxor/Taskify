@@ -9,11 +9,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
 use Tests\TestCase;
-use Tests\Traits\TestHelper;
 
 class CreateRoleControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, TestHelper;
+    use RefreshDatabase, WithFaker;
 
     protected User $user;
 

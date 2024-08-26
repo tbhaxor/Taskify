@@ -2,15 +2,22 @@
 
 namespace Tests\Feature\Http\Controllers\Groups;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\TestHelper;
 
 class ListGroupControllerTest extends TestCase
 {
-    use RefreshDatabase, TestHelper;
+    use RefreshDatabase;
 
-    public function test_should_redirect_to_login_page_when_unauthorized(): void
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+    }
+
+    public function test_should_redirect_to_login_page_when_unauthenticated(): void
     {
         $response = $this->get(route('group.index'));
         $response->assertRedirectToRoute('auth.login');
@@ -18,8 +25,8 @@ class ListGroupControllerTest extends TestCase
 
     public function test_should_return_only_groups_associated_with_users(): void
     {
-        $user = $this->createUser();
-        $groups = $this->createGroups(attributes: ['user_id' => $user->id]);
+        $user = User::factory()->create();
+        $groups = Group::factory()->count(3)->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user)->get(route('group.index'));
         $response->assertOk();
