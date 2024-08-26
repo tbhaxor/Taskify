@@ -6,14 +6,13 @@ use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Znck\Eloquent\Traits\BelongsToThrough;
 
 /**
  * @mixin IdeHelperTask
  */
 class Task extends Model
 {
-    use HasFactory, BelongsToThrough;
+    use HasFactory;
 
     protected $fillable = [
         'title',
@@ -29,11 +28,6 @@ class Task extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
-    }
-
-    public function user(): \Znck\Eloquent\Relations\BelongsToThrough
-    {
-        return $this->belongsToThrough(User::class, Group::class);
     }
 }
 
