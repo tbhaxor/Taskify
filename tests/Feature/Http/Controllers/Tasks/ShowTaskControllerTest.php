@@ -22,7 +22,7 @@ class ShowTaskControllerTest extends TestCase
     public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $group = Group::factory()->create();
-        $task = Task::factory()->create(['group_id' => $group->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $group->owner->id]);
 
         $response = $this->get(route('task.show', [
             'group' => $group,
@@ -48,9 +48,9 @@ class ShowTaskControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);
-        $task = Task::factory()->create(['group_id' => $group->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->get(route('task.show', [
+        $response = $this->actingAs($user)->withHeader('Accept', 'application/json')->get(route('task.show', [
             'group' => $group,
             'task' => $task
         ]));

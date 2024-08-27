@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class DeleteTaskControllerTest extends TestCase
@@ -22,7 +23,7 @@ class DeleteTaskControllerTest extends TestCase
     public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $group = Group::factory()->create();
-        $task = Task::factory()->create(['group_id' => $group->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $group->user_id]);
 
         $response = $this->get(route('task.delete', [
             'group' => $group,
@@ -35,7 +36,7 @@ class DeleteTaskControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $group = Group::factory()->create();
-        $task = Task::factory()->create(['group_id' => $group->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $group->user_id]);
 
         $response = $this->actingAs($user)->get(route('task.delete', [
             'group' => $group,
@@ -47,17 +48,17 @@ class DeleteTaskControllerTest extends TestCase
     public function test_should_return_as_missing_when_not_belongs_to_group()
     {
         $user = User::factory()->create();
-        $group = Group::factory()->create(['user_id' => $user->id]);
-        $group2 = Group::factory()->create(['user_id' => $user->id]);
-        $task = Task::factory()->create(['group_id' => $group2->id]);
+        /** @var Collection<int, Group> $groups */
+        $groups = Group::factory()->count(2)->create(['user_id' => $user->id]);
+        $task = Task::factory()->create(['group_id' => $groups->last()->id, 'user_id' => $user->id]);
 
 
         $response = $this->actingAs($user)->get(route('task.show', [
-            'group' => $group,
+            'group' => $groups->first(),
             'task' => $task
         ]));
         $response->assertRedirectToRoute('group.show', [
-            'group' => $group,
+            'group' => $groups->first(),
             'error' => 'Requested task does not exist.'
         ]);
     }
@@ -81,7 +82,7 @@ class DeleteTaskControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);
-        $task = Task::factory()->create(['group_id' => $group->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $user->id]);
 
         $response = $this->actingAs($user)->get(route('task.delete', [
             'group' => $group,
@@ -99,7 +100,7 @@ class DeleteTaskControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);
-        $task = Task::factory()->create(['group_id' => $group->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $user->id]);
 
         $response = $this->actingAs($user)->delete(route('task.delete', [
             'group' => $group,
