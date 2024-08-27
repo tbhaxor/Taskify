@@ -21,19 +21,21 @@ Route::view('/', 'welcome')->name('welcome');
 require 'auth.php';
 
 Route::middleware('auth')->group(function () {
-    Route::name('group.')->prefix('groups')->group(function () {
-        Route::get('', ListGroupController::class)->name('index');
-        Route::match(['GET', 'POST'], 'create', CreateGroupController::class)->name('create');
-        Route::missing(function () {
-            return to_route('group.index', [
-                'error' => 'Requested resource does not exist.',
-            ]);
-        })->group(function () {
-            Route::get('{group}', ShowGroupController::class)->name('show');
-            Route::match(['GET', 'PUT'], '{group}/edit', EditGroupController::class)->name('edit');
-            Route::match(['GET', 'DELETE'], '{group}/delete', DeleteGroupController::class)->name('delete');
+    Route::name('group.')
+        ->prefix('groups')
+        ->group(function () {
+            Route::get('', ListGroupController::class)->name('index');
+            Route::match(['GET', 'POST'], 'create', CreateGroupController::class)->name('create');
+            Route::missing(function () {
+                return to_route('group.index', [
+                    'error' => 'Requested resource does not exist.',
+                ]);
+            })->group(function () {
+                Route::get('{group}', ShowGroupController::class)->name('show');
+                Route::match(['GET', 'PUT'], '{group}/edit', EditGroupController::class)->name('edit');
+                Route::match(['GET', 'DELETE'], '{group}/delete', DeleteGroupController::class)->name('delete');
+            });
         });
-    });
 
     Route::name('task.')
         ->scopeBindings() // checks if the child model is really a child of the parent
