@@ -14,6 +14,10 @@ use App\Http\Controllers\Tasks\CreateTaskController;
 use App\Http\Controllers\Tasks\DeleteTaskController;
 use App\Http\Controllers\Tasks\EditTaskController;
 use App\Http\Controllers\Tasks\ShowTaskController;
+use App\Http\Controllers\UserInvite\CreateUserInviteController;
+use App\Http\Controllers\UserInvite\DeleteUserInviteController;
+use App\Http\Controllers\UserInvite\EditUserInviteController;
+use App\Http\Controllers\UserInvite\ListUserInviteController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('welcome');
@@ -36,6 +40,23 @@ Route::middleware('auth')->group(function () {
                 Route::match(['GET', 'DELETE'], '{group}/delete', DeleteGroupController::class)->name('delete');
             });
         });
+
+    Route::name('user-invite.')
+        ->prefix('groups/{group}/user-invites')
+        ->group(function () {
+            Route::get('', ListUserInviteController::class)->name('index');
+            Route::match(['GET', 'POST'], 'create', CreateUserInviteController::class)->name('create');
+            Route::missing(function () {
+                return to_route('user-invite.index', [
+                    'error' => 'Requested user invite does not exist.',
+                    'group' => request()->route('group')
+                ]);
+            })->group(function () {
+                Route::match(['GET', 'POST'], '{userInvite}/edit', EditUserInviteController::class)->name('edit');
+                Route::match(['GET', 'POST'], '{userInvite}/delete', DeleteUserInviteController::class)->name('delete');
+            });
+        });
+
 
     Route::name('task.')
         ->scopeBindings() // checks if the child model is really a child of the parent
