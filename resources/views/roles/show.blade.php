@@ -14,8 +14,12 @@
             </ul>
 
             <a href="{{ route('role.index') }}" class="card-link">All Roles</a>
-            <a href="{{ route('role.edit', ['role' => $role]) }}" class="card-link">Edit</a>
-            <a href="{{ route('role.delete', ['role' => $role]) }}" class="card-link text-danger">Delete</a>
+            @if ($role->user_id)
+                <a href="{{ route('role.edit', ['role' => $role]) }}" class="card-link">Edit</a>
+            @endif
+            @if ($role->user_id)
+                <a href="{{ route('role.delete', ['role' => $role]) }}" class="card-link text-danger">Delete</a>
+            @endif
             {{--            <table class="table">--}}
             {{--                <thead>--}}
             {{--                <tr>--}}
