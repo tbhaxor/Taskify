@@ -19,7 +19,7 @@ class CreateTaskController extends Controller
             return view('tasks.create');
         }
 
-        $group->tasks()->create($request->safe(['title', 'description']));
+        $group->tasks()->create($request->safe()->merge(['user_id' => $request->user()->id])->toArray());
 
         return to_route('group.show', [
             'group' => $group,
