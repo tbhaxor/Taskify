@@ -45,7 +45,7 @@ Route::middleware('auth')->group(function () {
             Route::missing(function () {
                 return to_route('group.show', [
                     'error' => 'Requested task does not exist.',
-                    'group' => request()->route()->parameters['group']
+                    'group' => request()->route('group')
                 ]);
             })->group(function () {
                 Route::get('{task}', ShowTaskController::class)->name('show');
