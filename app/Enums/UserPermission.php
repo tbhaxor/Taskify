@@ -17,11 +17,6 @@ enum UserPermission: string
     case EDIT_GROUPS = 'edit:groups';
     case DELETE_GROUPS = 'delete:groups';
 
-    case VIEW_GROUP_INVITES = 'view:group_invites';
-    case CREATE_GROUP_INVITES = 'create:group_invites';
-    case EDIT_GROUP_INVITES = 'edit:group_invites';
-    case DELETE_GROUP_INVITES = 'delete:group_invites';
-
     public function description(): string
     {
         return Str::apa(Str::replace('_', ' ', $this->name));
@@ -43,17 +38,13 @@ enum UserPermission: string
     {
         return match ($name) {
             'Admin' => self::all()->values(),
-            'Editor' => self::all()
-                ->filter(fn($permission) => !Str::endsWith($permission->name, 'GROUP_INVITES'))
-                ->values(),
+            'Editor' => self::all()->filter(fn($permission) => !Str::contains($permission->name, 'CREATE')),
             'Viewer' => self::all()
                 ->filter(fn($permission) => Str::startsWith($permission->name, 'VIEW'))
                 ->values(),
-            'Task Manager' => collect([self::VIEW_GROUPS])
-                ->merge(self::all())->filter(fn($permission) => Str::endsWith($permission->name, 'TASKS'))
-                ->values(),
-            'Group Manager' => self::all()
-                ->filter(fn($permission) => $permission->name === 'VIEW_GROUPS' || Str::endsWith($permission->name, 'GROUP_INVITES'))
+            'Task Manager' => self::all()
+                ->filter(fn($permission) => Str::endsWith($permission->name, 'TASKS'))
+                ->push(self::VIEW_GROUPS)
                 ->values(),
             default => collect(),
         };

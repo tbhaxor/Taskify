@@ -12,7 +12,7 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        collect(['Admin', 'Editor', 'Viewer', 'Task Manager', 'Group Manager'])->each(function ($name) {
+        collect(['Admin', 'Editor', 'Viewer', 'Task Manager'])->each(function ($name) {
             $role = Role::updateOrCreate(['name' => $name, 'user_id' => null], ['name' => $name]);
             $this->callSilent(PermissionSeeder::class, ['role' => $role]);
         });
