@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -42,9 +43,14 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function groups(): HasMany
+    public function groups(): BelongsToMany
     {
-        return $this->hasMany(Group::class);
+        return $this->belongsToMany(Group::class, UserGroupRole::class);
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
     }
 
     /**
