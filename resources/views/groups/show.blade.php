@@ -25,6 +25,14 @@
                 {{ $group->created_at }}
             </p>
             <p>
+                <strong>Created By:</strong>
+                @if($group->owner->is(auth()->user()))
+                    You
+                @else
+                    {{$group->owner->name}} &lt;{{$group->owner->email}}&gt;
+                @endif
+            </p>
+            <p>
                 <strong>Updated At:</strong>
                 {{ $group->updated_at }}
             </p>

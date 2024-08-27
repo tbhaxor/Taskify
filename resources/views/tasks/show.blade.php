@@ -32,6 +32,14 @@
                 {{ $task->created_at }}
             </p>
             <p>
+                <strong>Created By:</strong>
+                @if($task->user->is(auth()->user()))
+                    You
+                @else
+                    {{$task->user->name}} &lt;{{$task->user->email}}&gt;
+                @endif
+            </p>
+            <p>
                 <strong>Updated At:</strong>
                 {{ $task->updated_at }}
             </p>
