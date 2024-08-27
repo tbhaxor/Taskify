@@ -16,10 +16,7 @@ use App\Http\Controllers\Tasks\EditTaskController;
 use App\Http\Controllers\Tasks\ShowTaskController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
-
+Route::view('/', 'welcome')->name('welcome');
 
 require 'auth.php';
 
