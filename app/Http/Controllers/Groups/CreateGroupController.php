@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Groups\CreateGroupRequest;
 use App\Models\Group;
 use App\Models\Role;
-use App\Models\UserGroupRole;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -25,11 +24,8 @@ class CreateGroupController extends Controller
         }
 
         DB::transaction(function () use ($request) {
-            /** @var Group $group */
-            $group = $request->user()->groups()->create($request->validated());
-            UserGroupRole::create([
-                'user_id' => $request->user()->id,
-                'group_id' => $group->id,
+            $group = Group::create($request->safe()->merge(['user_id' => $request->user()->id])->toArray());
+            $group->users()->attach($request->user()->id, [
                 'role_id' => Role::admin()->id
             ]);
         });
