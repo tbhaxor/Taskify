@@ -1,3 +1,4 @@
+@use('App\Enums\UserPermission')
 @extends('layouts.base')
 
 @section('title', 'All Tasks')
@@ -25,9 +26,14 @@
                 <td>{{ $group->updated_at }}</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a href="{{ route('group.edit', ['group' => $group]) }}" class="btn btn-sm btn-primary">Edit</a>
-                        <a href="{{ route('group.delete', ['group' => $group]) }}"
-                           class="btn btn-sm btn-danger">Delete</a>
+                        @can(UserPermission::EDIT_GROUPS->value, $group)
+                            <a href="{{ route('group.edit', ['group' => $group]) }}"
+                               class="btn btn-sm btn-primary">Edit</a>
+                        @endcan
+                        @can(UserPermission::DELETE_GROUPS->value, $group)
+                            <a href="{{ route('group.delete', ['group' => $group]) }}"
+                               class="btn btn-sm btn-danger">Delete</a>
+                        @endcan
                     </div>
                 </td>
             </tr>
