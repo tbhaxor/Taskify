@@ -14,6 +14,8 @@ class PermissionSeeder extends Seeder
      */
     public function run(Role $role): void
     {
+        $role->permissions()->detach();
+        
         UserPermission::forRole($role->name)->each(function (UserPermission $permission) use ($role) {
             $permission = Permission::createOrFirst(['value' => $permission], ['value' => $permission]);
             $role->permissions()->attach($permission->id);
