@@ -38,6 +38,10 @@
             </p>
 
             <a href="{{ route('group.index') }}" class="card-link">All Groups</a>
+            @if($group->user_id === auth()->id())
+                <a href="{{ route('user-invite.index', ['group' => $group]) }}" class="card-link">Show Group
+                    Invites</a>
+            @endif
             @can(UserPermission::EDIT_GROUPS->value, $group)
                 <a href="{{ route('group.edit', ['group' => $group]) }}" class="card-link">Edit</a>
             @endcan
