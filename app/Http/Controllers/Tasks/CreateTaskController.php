@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Tasks;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tasks\CreateTaskRequest;
 use App\Models\Group;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class CreateTaskController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke(CreateTaskRequest $request, Group $group)
+    public function __invoke(CreateTaskRequest $request, Group $group): View|RedirectResponse
     {
         if ($request->isMethod('GET')) {
             return view('tasks.create');
