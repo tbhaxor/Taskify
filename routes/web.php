@@ -5,6 +5,9 @@ use App\Http\Controllers\Groups\DeleteGroupController;
 use App\Http\Controllers\Groups\EditGroupController;
 use App\Http\Controllers\Groups\ListGroupController;
 use App\Http\Controllers\Groups\ShowGroupController;
+use App\Http\Controllers\GroupSharing\DeleteGroupSharingController;
+use App\Http\Controllers\GroupSharing\EditGroupSharingController;
+use App\Http\Controllers\GroupSharing\ListGroupSharingController;
 use App\Http\Controllers\Role\CreateRoleController;
 use App\Http\Controllers\Role\DeleteRoleController;
 use App\Http\Controllers\Role\EditRoleController;
@@ -89,4 +92,12 @@ Route::middleware('auth')->group(function () {
             Route::match(['GET', 'POST'], 'delete', DeleteRoleController::class)->name('delete');
         });
     });
+
+    Route::name('group-sharing.')
+        ->prefix('groups/{group}/sharing')
+        ->group(function () {
+            Route::get('', ListGroupSharingController::class)->name('index');
+            Route::match(['GET', 'POST'], 'edit', EditGroupSharingController::class)->name('edit');
+            Route::match(['GET', 'POST'], 'delete', DeleteGroupSharingController::class)->name('delete');
+        });
 });
