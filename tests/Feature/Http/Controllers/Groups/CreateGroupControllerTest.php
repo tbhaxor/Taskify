@@ -12,7 +12,7 @@ class CreateGroupControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthenticated(): void
+    public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $response = $this->get(route('group.create'));
         $response->assertRedirectToRoute('auth.login');

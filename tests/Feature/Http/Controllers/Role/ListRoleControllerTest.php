@@ -12,13 +12,13 @@ class ListRoleControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthorized(): void
+    public function test_should_redirect_to_login_page_when_unauthorized()
     {
         $response = $this->get(route('role.index'));
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_default_roles_and_do_not_allow_edit_and_delete(): void
+    public function test_should_return_default_roles_and_do_not_allow_edit_and_delete()
     {
         $user = User::factory()->create();
 
@@ -34,7 +34,7 @@ class ListRoleControllerTest extends TestCase
     }
 
 
-    public function test_should_allow_edit_and_delete_for_user_roles(): void
+    public function test_should_allow_edit_and_delete_for_user_roles()
     {
         $user = User::factory()->create()->loadCount('roles');
         $role = Role::factory()->create(['user_id' => $user->id]);

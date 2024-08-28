@@ -22,7 +22,7 @@ class CreateTaskControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_view_on_get_method(): void
+    public function test_should_return_view_on_get_method()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);
@@ -32,7 +32,7 @@ class CreateTaskControllerTest extends TestCase
         $response->assertViewIs('tasks.create');
     }
 
-    public function test_should_not_process_invalid_payload_and_return_validation_errors(): void
+    public function test_should_not_process_invalid_payload_and_return_validation_errors()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);

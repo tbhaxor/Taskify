@@ -11,7 +11,7 @@ class ShowGroupControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_should_redirect_to_login_page_when_unauthenticated(): void
+    public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $response = $this->get(route('group.show', [
             'group' => 1
@@ -19,7 +19,7 @@ class ShowGroupControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_forbid_fetching_details_of_other_user_groups(): void
+    public function test_should_forbid_fetching_details_of_other_user_groups()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create();
@@ -30,7 +30,7 @@ class ShowGroupControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_should_return_valid_group_for_the_user_account(): void
+    public function test_should_return_valid_group_for_the_user_account()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);

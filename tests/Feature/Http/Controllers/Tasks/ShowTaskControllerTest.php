@@ -38,7 +38,7 @@ class ShowTaskControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_should_return_valid_task_on_get_request(): void
+    public function test_should_return_valid_task_on_get_request()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);

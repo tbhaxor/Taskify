@@ -13,13 +13,13 @@ class CreateRoleControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthorized(): void
+    public function test_should_redirect_to_login_page_when_unauthorized()
     {
         $response = $this->get(route('role.create'));
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_error_on_invalid_payload(): void
+    public function test_should_return_error_on_invalid_payload()
     {
         $user = User::factory()->create();
 
@@ -46,7 +46,7 @@ class CreateRoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_create_role_and_attach_current_user_id(): void
+    public function test_should_create_role_and_attach_current_user_id()
     {
         $user = User::factory()->create();
 

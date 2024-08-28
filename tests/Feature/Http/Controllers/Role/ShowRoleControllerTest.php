@@ -13,7 +13,7 @@ class ShowRoleControllerTest extends TestCase
 
     use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthorized(): void
+    public function test_should_redirect_to_login_page_when_unauthorized()
     {
         $response = $this->get(route('role.show', ['role' => 1]));
         $response->assertRedirectToRoute('auth.login');
@@ -22,7 +22,7 @@ class ShowRoleControllerTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_should_return_role_in_view(): void
+    public function test_should_return_role_in_view()
     {
         $user = User::factory()->create();
 
@@ -34,7 +34,7 @@ class ShowRoleControllerTest extends TestCase
         $this->assertTrue($response->viewData('role')->is($user->roles()->first()));
     }
 
-    public function test_should_return_to_index_when_role_not_found(): void
+    public function test_should_return_to_index_when_role_not_found()
     {
         $user = User::factory()->create();
         Role::factory()->create(['user_id' => $user->id]);
@@ -47,7 +47,7 @@ class ShowRoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_forbid_users_to_view_other_users_roles(): void
+    public function test_should_forbid_users_to_view_other_users_roles()
     {
         $user = User::factory()->create();
         $user2 = User::factory()->create();

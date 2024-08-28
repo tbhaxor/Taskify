@@ -12,7 +12,7 @@ class EditGroupControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthenticated(): void
+    public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $response = $this->get(route('group.edit', [
             'group' => 1
@@ -20,7 +20,7 @@ class EditGroupControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_forbid_editing_another_user_groups(): void
+    public function test_should_forbid_editing_another_user_groups()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create();

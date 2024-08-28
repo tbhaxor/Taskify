@@ -11,7 +11,7 @@ class DeleteGroupControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_should_redirect_to_login_page_when_unauthenticated(): void
+    public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $response = $this->get(route('group.delete', [
             'group' => 1
@@ -19,7 +19,7 @@ class DeleteGroupControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_forbid_unauthorized_users(): void
+    public function test_should_forbid_unauthorized_users()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create();
