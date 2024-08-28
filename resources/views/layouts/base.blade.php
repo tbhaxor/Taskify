@@ -1,5 +1,4 @@
-@php use Illuminate\Support\Env; @endphp
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -13,7 +12,7 @@
 </head>
 
 <body>
-@if (Env::get('APP_SHOW_DEPLOY_BANNER') == 'true')
+@if (env('APP_SHOW_DEPLOY_BANNER'))
     <div style="margin: 0; padding: 1em" class="alert alert-warning text-center" role="alert">
         This is <strong>deployed on a free tier</strong> of a <a href="https://render.com/">https://render.com</a>,
         <strong>after inactivity all the data will be wiped!</strong>
