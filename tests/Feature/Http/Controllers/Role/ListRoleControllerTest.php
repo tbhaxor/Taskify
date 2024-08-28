@@ -4,7 +4,6 @@ namespace Tests\Feature\Http\Controllers\Role;
 
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -51,11 +50,4 @@ class ListRoleControllerTest extends TestCase
         $response->assertSee(route('role.edit', $role));
         $response->assertSee(route('role.delete', $role));
     }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RoleSeeder::class);
-    }
-
 }

@@ -5,7 +5,6 @@ namespace Tests\Feature\Http\Controllers\Role;
 use App\Enums\UserPermission;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
@@ -132,11 +131,5 @@ class EditRoleControllerTest extends TestCase
             ->pluck('value.value')
             ->sort()
             ->each(fn($value,) => $this->assertTrue(in_array($value, $payload['permissions'])));
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RoleSeeder::class);
     }
 }

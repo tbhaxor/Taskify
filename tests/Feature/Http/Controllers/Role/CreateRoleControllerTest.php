@@ -4,7 +4,6 @@ namespace Tests\Feature\Http\Controllers\Role;
 
 use App\Enums\UserPermission;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
@@ -13,8 +12,6 @@ use Tests\TestCase;
 class CreateRoleControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
-
-    protected User $user;
 
     public function test_should_redirect_to_login_page_when_unauthorized(): void
     {
@@ -73,12 +70,5 @@ class CreateRoleControllerTest extends TestCase
             'name' => $payload['name'],
             'user_id' => $user->id,
         ]);
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->seed(RoleSeeder::class);
     }
 }
