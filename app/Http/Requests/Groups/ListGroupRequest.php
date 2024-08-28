@@ -11,7 +11,7 @@ class ListGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return !auth()->guest();
+        return true;
     }
 
     /**

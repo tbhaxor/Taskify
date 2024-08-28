@@ -13,7 +13,8 @@
         "adriengras/pkce-php": "*",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
-        "staudenmeir/belongs-to-through": "^2.16"
+        "socialiteproviders/zitadel": "^4.1",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0",

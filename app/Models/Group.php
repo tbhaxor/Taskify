@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @property User $user
  * @mixin IdeHelperGroup
  */
 class Group extends Model
@@ -17,6 +17,7 @@ class Group extends Model
 
     protected $fillable = [
         'title',
+        'user_id',
         'description',
     ];
 
@@ -27,6 +28,11 @@ class Group extends Model
 
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, UserGroupRole::class);
     }
 }

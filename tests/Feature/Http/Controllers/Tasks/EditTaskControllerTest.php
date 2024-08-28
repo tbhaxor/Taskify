@@ -2,19 +2,27 @@
 
 namespace Tests\Feature\Http\Controllers\Tasks;
 
+use App\Models\Group;
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
-use Tests\Traits\TestHelper;
 
 class EditTaskControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, TestHelper;
+    use RefreshDatabase, WithFaker;
 
-
-    public function test_should_redirect_to_login_page()
+    protected function setUp(): void
     {
-        $task = $this->createTask();
+        parent::setUp();
+        $this->seed();
+    }
+
+    public function test_should_redirect_to_login_page_when_unauthenticated()
+    {
+        $task = Task::factory()->create();
 
         $response = $this->get(route('task.edit', [
             'group' => $task->group,
@@ -23,12 +31,14 @@ class EditTaskControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_403_on_some_other_user()
+    public function test_should_forbid_editing_tasks_of_groups_that_belongs_to_other_users()
     {
-        $task = $this->createTask();
+        $user = User::factory()->create();
+        $group = Group::factory()->create();
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $group->user_id]);
 
-        $response = $this->actingAs($this->createUser())->get(route('task.edit', [
-            'group' => $task->group,
+        $response = $this->actingAs($user)->get(route('task.edit', [
+            'group' => $group,
             'task' => $task
         ]));
         $response->assertForbidden();
@@ -36,40 +46,46 @@ class EditTaskControllerTest extends TestCase
 
     public function test_should_return_as_missing_when_not_belongs_to_group()
     {
-        $task = $this->createTask();
-        $group = $this->createGroup();
+        $user = User::factory()->create();
+        /** @var Collection<int, Group> $groups */
+        $groups = Group::factory()->count(2)->create(['user_id' => $user->id]);
+        $task = Task::factory()->create(['group_id' => $groups->last()->id, 'user_id' => $user->id]);
 
-        $response = $this->actingAs($group->user)->get(route('task.show', [
-            'group' => $group,
+
+        $response = $this->actingAs($user)->get(route('task.show', [
+            'group' => $groups->first(),
             'task' => $task
         ]));
         $response->assertRedirectToRoute('group.show', [
-            'group' => $group,
+            'group' => $groups->first(),
             'error' => 'Requested task does not exist.'
         ]);
     }
 
     public function test_should_return_as_missing_when_task_does_not_exist()
     {
-        $task = $this->createTask();
-        $task->delete();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($task->user)->get(route('task.edit', [
-            'group' => $task->group,
-            'task' => $task,
+        $response = $this->actingAs($user)->get(route('task.edit', [
+            'group' => $group,
+            'task' => 999999,
         ]));
         $response->assertRedirectToRoute('group.show', [
-            'group' => $task->group,
+            'group' => $group,
             'error' => 'Requested task does not exist.'
         ]);
     }
 
     public function test_should_reject_on_invalid_payload()
     {
-        $task = $this->createTask();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $user->id]);
 
-        $response = $this->actingAs($task->user)->put(route('task.edit', [
-            'group' => $task->group,
+
+        $response = $this->actingAs($user)->put(route('task.edit', [
+            'group' => $group,
             'task' => $task,
         ]));
         $response->assertSessionHasErrors([
@@ -77,8 +93,8 @@ class EditTaskControllerTest extends TestCase
             'status' => 'The status field is required.',
         ]);
 
-        $response = $this->actingAs($task->user)->put(route('task.edit', [
-            'group' => $task->group,
+        $response = $this->actingAs($user)->put(route('task.edit', [
+            'group' => $group,
             'task' => $task,
         ]), [
             'title' => $this->faker->text(64),
@@ -89,16 +105,16 @@ class EditTaskControllerTest extends TestCase
             'status' => 'The selected status is invalid.',
         ]);
 
-        $this->actingAs($task->user)->put(route('task.edit', [
-            'group' => $task->group,
+        $this->actingAs($user)->put(route('task.edit', [
+            'group' => $group,
             'task' => $task,
         ]), [
             'title' => $this->faker->text(64),
             'description' => $this->faker->text(),
             'status' => 'completed',
         ]);
-        $response = $this->actingAs($task->user)->put(route('task.edit', [
-            'group' => $task->group,
+        $response = $this->actingAs($user)->put(route('task.edit', [
+            'group' => $group,
             'task' => $task,
         ]), [
             'title' => $this->faker->text(64),
@@ -110,9 +126,11 @@ class EditTaskControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_accept_valid_payload()
+    public function test_should_accept_valid_payload_and_redirect_to_task_show()
     {
-        $task = $this->createTask();
+        $user = User::factory()->create();
+        $group = Group::factory()->create(['user_id' => $user->id]);
+        $task = Task::factory()->create(['group_id' => $group->id, 'user_id' => $user->id]);
 
         $payload = [
             'status' => $this->faker->randomElement([
@@ -124,13 +142,13 @@ class EditTaskControllerTest extends TestCase
             'description' => $this->faker->text(),
         ];
 
-        $response = $this->actingAs($task->user)->put(route('task.edit', [
-            'group' => $task->group,
+        $response = $this->actingAs($user)->put(route('task.edit', [
+            'group' => $group,
             'task' => $task,
         ]), $payload);
 
         $response->assertRedirectToRoute('task.show', [
-            'group' => $task->group,
+            'group' => $group,
             'task' => $task,
         ]);
     }

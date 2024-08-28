@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Groups;
 
-use App\Models\Group;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateGroupRequest extends FormRequest
@@ -12,7 +11,7 @@ class CreateGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return !auth()->guest();
+        return true;
     }
 
     /**

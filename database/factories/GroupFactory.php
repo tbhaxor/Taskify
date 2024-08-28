@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Group;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserGroupRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +23,18 @@ class GroupFactory extends Factory
         return [
             'title' => fake()->text(64),
             'description' => fake()->text(),
-            'user_id' => User::factory()->create()->id,
+            'user_id' => User::factory()->create()->id
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Group $group) {
+            UserGroupRole::insert([
+                'group_id' => $group->id,
+                'user_id' => $group->user_id,
+                'role_id' => Role::admin()->id
+            ]);
+        });
     }
 }

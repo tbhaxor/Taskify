@@ -4,44 +4,40 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserGroupRole;
+use App\Models\UserInvite;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
 
 class CallbackController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): RedirectResponse
     {
-        if (!$request->session()->has('zitadel_pkce')) {
-            return to_route('auth.login');
-        }
-
-        $payload = [
-            'client_id' => config('services.zitadel.client_id'),
-            'code' => $request->query('code'),
-            'redirect_uri' => route('auth.callback'),
-            'grant_type' => 'authorization_code',
-            'code_verifier' => $request->session()->get('zitadel_pkce')['code_verifier'],
-        ];
-
-        Log::info('Retrieved information', $payload);
-
-        $response = Http::asForm()->post(config('services.zitadel.base_url') . '/oauth/v2/token?' . http_build_query($payload));
-        $tokens = Arr::only($response->json(), ['id_token', 'access_token']);
-
-        $response = Http::withHeader('Authorization', 'Bearer ' . $tokens['access_token'])
-            ->post(config('services.zitadel.base_url') . '/oidc/v1/userinfo');
+        /** @var \SocialiteProviders\Manager\OAuth2\User $profile */
+        $profile = Socialite::driver('zitadel')->enablePKCE()->user();
 
         /** @var User $user */
-        $user = User::updateOrCreate(['email' => $response->json('email')], Arr::only($response->json(), ['name', 'email']));
+        $user = User::updateOrCreate(['email' => $profile->email], ['name' => $profile->name]);
 
-        $request->session()->put('zitadel_id_token', $tokens['id_token']);
-        $request->session()->remove('zitadel_pkce');
+        if ($user->wasRecentlyCreated) {
+            UserInvite::whereEmail($user->email)
+                ->get()
+                ->each(function (UserInvite $invite) use ($user) {
+                    UserGroupRole::create([
+                        'user_id' => $user->id,
+                        'group_id' => $invite->group_id,
+                        'role_id' => $invite->role_id
+                    ]);
+                    $invite->delete();
+                });
+        }
+
+        $request->session()->put('zitadel_id_token', $profile->accessTokenResponseBody['id_token']);
 
         Auth::login($user, true);
         $request->session()->regenerate();

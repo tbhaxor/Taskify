@@ -17,10 +17,13 @@ class TaskFactory extends Factory
      */
     public function definition(): array
     {
+        $group = Group::factory()->create();
+        
         return [
             'title' => fake()->text(64),
             'description' => fake()->text(),
-            'group_id' => Group::factory()->create()->id
+            'group_id' => $group->id,
+            'user_id' => $group->user_id
         ];
     }
 }
