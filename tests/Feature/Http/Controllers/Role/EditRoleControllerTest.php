@@ -5,7 +5,6 @@ namespace Tests\Feature\Http\Controllers\Role;
 use App\Enums\UserPermission;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
@@ -15,7 +14,7 @@ class EditRoleControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthorized(): void
+    public function test_should_redirect_to_login_page_when_unauthorized()
     {
         $response = $this->get(route('role.edit', [
             'role' => 1
@@ -23,7 +22,7 @@ class EditRoleControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_view_with_role_on_get_method(): void
+    public function test_should_return_view_with_role_on_get_method()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create(['user_id' => $user->id]);
@@ -35,7 +34,7 @@ class EditRoleControllerTest extends TestCase
         $response->assertViewHas('role', $role);
     }
 
-    public function test_should_return_to_roles_index_when_not_found(): void
+    public function test_should_return_to_roles_index_when_not_found()
     {
         $user = User::factory()->create();
 
@@ -46,7 +45,7 @@ class EditRoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_forbid_editing_other_users_roles(): void
+    public function test_should_forbid_editing_other_users_roles()
     {
         $user = User::factory()->create();
         $user2 = User::factory()->create();
@@ -59,7 +58,7 @@ class EditRoleControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_should_forbid_editing_default_roles(): void
+    public function test_should_forbid_editing_default_roles()
     {
         $user = User::factory()->create();
 
@@ -71,7 +70,7 @@ class EditRoleControllerTest extends TestCase
     }
 
 
-    public function test_should_return_error_on_invalid_payload(): void
+    public function test_should_return_error_on_invalid_payload()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create(['user_id' => $user->id]);
@@ -100,7 +99,7 @@ class EditRoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_edit_role_and_redirect_roles_index(): void
+    public function test_should_edit_role_and_redirect_roles_index()
     {
         $user = User::factory()->create();
         $role = Role::factory()->withPermissions()->create(['user_id' => $user->id]);
@@ -132,11 +131,5 @@ class EditRoleControllerTest extends TestCase
             ->pluck('value.value')
             ->sort()
             ->each(fn($value,) => $this->assertTrue(in_array($value, $payload['permissions'])));
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RoleSeeder::class);
     }
 }

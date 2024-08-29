@@ -6,7 +6,7 @@
 @section('content')
     <h1>List of Associated Users with this Group</h1>
     <div id="alert-container"></div>
-    <a href="{{ route('group.create' )}}" class="btn btn-primary">Create New</a>
+    <a href="{{ route('user-invite.create', ['group' => $group] )}}" class="btn btn-primary">Add New User</a>
     <table class="table">
         <thead>
         <tr>
@@ -29,9 +29,9 @@
                 <td>
                     @if($group->user_id !== $userGroupRole->user_id)
                         <div class="btn-group" role="group">
-                            <a href="{{ route('group-sharing.edit', ['group' => $group]) . '?user_id=' . $userGroupRole->user->id. '&role_id=' . $userGroupRole->role->id }}"
+                            <a href="{{ route('group-sharing.edit', ['group' => $group, 'user_id' => $userGroupRole->user]) }}"
                                class="btn btn-sm btn-primary">Edit</a>
-                            <a href="{{ route('group-sharing.delete', ['group' => $group]) . '?user_id=' . $userGroupRole->user->id. '&role_id=' . $userGroupRole->role->id }}"
+                            <a href="{{ route('group-sharing.delete', ['group' => $group, 'user_id' => $userGroupRole->user]) }}"
                                class="btn btn-sm btn-danger">Delete</a>
                         </div>
                     @endif

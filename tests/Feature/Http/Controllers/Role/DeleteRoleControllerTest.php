@@ -4,7 +4,6 @@ namespace Tests\Feature\Http\Controllers\Role;
 
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -13,7 +12,7 @@ class DeleteRoleControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_should_redirect_to_login_page_when_unauthorized(): void
+    public function test_should_redirect_to_login_page_when_unauthorized()
     {
         $response = $this->get(route('role.delete', [
             'role' => 1
@@ -21,7 +20,7 @@ class DeleteRoleControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_return_view_with_role_on_get_method(): void
+    public function test_should_return_view_with_role_on_get_method()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create(['user_id' => $user->id]);
@@ -33,7 +32,7 @@ class DeleteRoleControllerTest extends TestCase
         $response->assertViewHas('role', $role);
     }
 
-    public function test_should_return_to_roles_index_when_not_found(): void
+    public function test_should_return_to_roles_index_when_not_found()
     {
         $user = User::factory()->create();
 
@@ -44,7 +43,7 @@ class DeleteRoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_forbid_deleting_other_users_roles(): void
+    public function test_should_forbid_deleting_other_users_roles()
     {
         $user = User::factory()->create();
         $user2 = User::factory()->create();
@@ -57,7 +56,7 @@ class DeleteRoleControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_should_forbid_deleting_default_roles(): void
+    public function test_should_forbid_deleting_default_roles()
     {
         $user = User::factory()->create();
 
@@ -68,7 +67,7 @@ class DeleteRoleControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_should_delete_role_and_redirect_roles_index(): void
+    public function test_should_delete_role_and_redirect_roles_index()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create(['user_id' => $user->id]);
@@ -83,11 +82,5 @@ class DeleteRoleControllerTest extends TestCase
         $this->assertDatabaseMissing('roles', [
             'id' => $role->id
         ]);
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RoleSeeder::class);
     }
 }

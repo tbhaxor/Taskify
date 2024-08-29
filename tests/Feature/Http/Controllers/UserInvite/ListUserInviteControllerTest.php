@@ -13,13 +13,7 @@ class ListUserInviteControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed();
-    }
-
-    public function test_should_redirect_to_login_page_when_unauthenticated(): void
+    public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $userInvite = UserInvite::factory()->create();
         $response = $this->get(route('user-invite.index', ['group' => $userInvite->group]));

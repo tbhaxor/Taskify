@@ -12,13 +12,7 @@ class CreateUserInviteControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed();
-    }
-
-    public function test_should_redirect_to_login_page_when_unauthenticated(): void
+    public function test_should_redirect_to_login_page_when_unauthenticated()
     {
         $group = Group::factory()->create();
         $response = $this->get(route('user-invite.create', ['group' => $group]));
@@ -81,7 +75,7 @@ class CreateUserInviteControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_not_create_user_invite_if_email_already_exists()
+    public function test_should_not_create_invite_if_email_exists_and_redirect_to_group_sharing()
     {
         $user = User::factory()->create();
         $user2 = User::factory()->create();
@@ -97,9 +91,9 @@ class CreateUserInviteControllerTest extends TestCase
             'role_id' => $user->roles->first()->id,
             'group_id' => $group->id,
         ]);
-        $response->assertRedirectToRoute('group.index', [
+        $response->assertRedirectToRoute('group-sharing.index', [
             'group' => $group,
-            'message' => 'User has been invited to the group.'
+            'message' => 'User has been added to the group.'
         ]);
     }
 

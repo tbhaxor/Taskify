@@ -25,9 +25,13 @@ class RoleFactory extends Factory
         ];
     }
 
-    public function withPermissions(int $count = 3): static
+    /**
+     * @param array<int, UserPermission> $permissions
+     * @return $this
+     */
+    public function withPermissions(...$permissions): static
     {
-        return $this->hasAttached(Permission::whereIn('value', UserPermission::all()->random($count))->get());
+        return $this->hasAttached(Permission::whereIn('value', $permissions)->get());
     }
 }
 
