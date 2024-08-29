@@ -6,7 +6,7 @@
 @section('content')
     <h1>List of Associated Users with this Group</h1>
     <div id="alert-container"></div>
-    <a href="{{ route('group.create' )}}" class="btn btn-primary">Create New</a>
+    <a href="{{ route('user-invite.create', ['group' => $group] )}}" class="btn btn-primary">Add New User</a>
     <table class="table">
         <thead>
         <tr>
