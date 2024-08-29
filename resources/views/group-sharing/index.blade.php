@@ -29,9 +29,9 @@
                 <td>
                     @if($group->user_id !== $userGroupRole->user_id)
                         <div class="btn-group" role="group">
-                            <a href="{{ route('group-sharing.edit', ['group' => $group]) . '?user_id=' . $userGroupRole->user->id. '&role_id=' . $userGroupRole->role->id }}"
+                            <a href="{{ route('group-sharing.edit', ['group' => $group, 'user_id' => $userGroupRole->user]) }}"
                                class="btn btn-sm btn-primary">Edit</a>
-                            <a href="{{ route('group-sharing.delete', ['group' => $group]) . '?user_id=' . $userGroupRole->user->id. '&role_id=' . $userGroupRole->role->id }}"
+                            <a href="{{ route('group-sharing.delete', ['group' => $group, 'user_id' => $userGroupRole->user]) }}"
                                class="btn btn-sm btn-danger">Delete</a>
                         </div>
                     @endif
