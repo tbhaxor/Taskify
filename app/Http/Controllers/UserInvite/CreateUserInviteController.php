@@ -30,7 +30,7 @@ class CreateUserInviteController extends Controller
                 'group_id' => $group->id,
                 'role_id' => $request->safe()['role_id']
             ]);
-            return to_route('group.index', ['group' => $group, 'message' => 'User has been invited to the group.']);
+            return to_route('group-sharing.index', ['group' => $group, 'message' => 'User has been added to the group.']);
         } else {
             UserInvite::createOrFirst($request->safe()
                 ->merge([
