@@ -32,7 +32,7 @@ class ListGroupSharingControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_should_list_all_group_shares_for_group_owner()
+    public function test_should_list_all_group_shares_for_group_owners()
     {
         $users = User::factory()->count(10)->create();
         $owner = $users->first();

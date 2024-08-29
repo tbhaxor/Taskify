@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Http\Controllers\Groups;
 
+use App\Enums\UserPermission;
 use App\Models\Group;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -20,8 +22,9 @@ class EditGroupControllerTest extends TestCase
         $response->assertRedirectToRoute('auth.login');
     }
 
-    public function test_should_forbid_editing_another_user_groups()
+    public function test_should_forbid_accessing_page_for_unauthorized_users()
     {
+        // User is not associated with the group
         $user = User::factory()->create();
         $group = Group::factory()->create();
 
@@ -29,9 +32,20 @@ class EditGroupControllerTest extends TestCase
             'group' => $group
         ]));
         $response->assertForbidden();
+
+
+        // User is associated with the group but doesn't have sufficient permission
+        $role = Role::factory()
+            ->withPermissions(UserPermission::VIEW_GROUPS)
+            ->create(['user_id' => $user->id]);
+        $user = User::factory()->withGroup($group, $role)->create();
+        $response = $this->actingAs($user)->get(route('group.edit', [
+            'group' => $group
+        ]));
+        $response->assertForbidden();
     }
 
-    public function test_should_return_view_on_get_method()
+    public function test_should_return_view_on_get_method_for_group_owners()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);
@@ -66,10 +80,52 @@ class EditGroupControllerTest extends TestCase
         ]);
     }
 
-    public function test_should_accept_valid_payload()
+    public function test_should_edit_and_return_to_group_index_for_group_owners()
     {
         $user = User::factory()->create();
         $group = Group::factory()->create(['user_id' => $user->id]);
+
+        $title = $this->faker->text(64);
+
+        $response = $this->actingAs($user)->put(route('group.edit', [
+            'group' => $group
+        ]), [
+            'title' => $title
+        ]);
+        $response->assertRedirectToRoute('group.show', [
+            'group' => $group
+        ]);
+        $this->assertDatabaseMissing('groups', [
+            'title' => $group->title
+        ]);
+        $this->assertDatabaseHas('groups', [
+            'title' => $title,
+        ]);
+    }
+
+    public function test_should_return_view_on_get_method_for_authorized_users()
+    {
+        $group = Group::factory()->create();
+        $role = Role::factory()
+            ->withPermissions(UserPermission::EDIT_GROUPS)
+            ->create(['user_id' => $group->user_id]);
+        $user = User::factory()->withGroup($group, $role)->create();
+
+        $response = $this->actingAs($user)->get(route('group.edit', [
+            'group' => $group
+        ]));
+        $response->assertOk();
+        $response->assertViewIs('groups.edit');
+        $response->assertViewHas('group', $group);
+    }
+
+    public function test_should_delete_and_return_to_group_index_for_authorized_users()
+    {
+        $group = Group::factory()->create();
+        $role = Role::factory()
+            ->withPermissions(UserPermission::EDIT_GROUPS)
+            ->create(['user_id' => $group->user_id]);
+        $user = User::factory()->withGroup($group, $role)->create();
 
         $title = $this->faker->text(64);
 
