@@ -2,6 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Group;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\UserGroupRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -27,13 +31,14 @@ class UserFactory extends Factory
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function withGroup(Group $group, ?Role $role = null): Factory
     {
-        return $this->state(fn(array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        /** @var Role $role */
+        $role = $role ?? Role::admin();
+        return $this->afterCreating(fn(User $user) => UserGroupRole::insert([
+            'user_id' => $user->id,
+            'group_id' => $group->id,
+            'role_id' => $role->id
+        ]));
     }
 }
