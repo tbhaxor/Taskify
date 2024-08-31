@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'All Tasks')
+@section('title', 'All Groups')
 
 @section('content')
     <h1>List of All Groups</h1>
