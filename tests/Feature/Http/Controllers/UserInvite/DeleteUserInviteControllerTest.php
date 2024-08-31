@@ -2,16 +2,25 @@
 
 namespace Tests\Feature\Http\Controllers\UserInvite;
 
+use App\Events\UserInvite\DeleteUserInviteEvent;
 use App\Models\Group;
 use App\Models\User;
 use App\Models\UserInvite;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class DeleteUserInviteControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Event::fake();
+    }
 
     public function test_should_redirect_to_login_page_when_unauthenticated()
     {
@@ -36,6 +45,7 @@ class DeleteUserInviteControllerTest extends TestCase
             'userInvite' => $userInvite,
             'group' => $group,
         ]);
+        Event::assertNotDispatched(DeleteUserInviteEvent::class);
     }
 
     public function test_should_forbid_for_non_group_owners()
@@ -49,6 +59,7 @@ class DeleteUserInviteControllerTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('user-invite.delete', ['group' => $group, 'userInvite' => $userInvite]));
         $response->assertForbidden();
+        Event::assertNotDispatched(DeleteUserInviteEvent::class);
     }
 
     public function test_should_redirect_to_user_invite_index_when_it_does_not_exist()
@@ -61,6 +72,7 @@ class DeleteUserInviteControllerTest extends TestCase
             'group' => $group,
             'error' => 'Requested user invite does not exist.',
         ]);
+        Event::assertNotDispatched(DeleteUserInviteEvent::class);
     }
 
     public function test_should_delete_user_invite_and_return_to_user_invite_index()
@@ -80,5 +92,6 @@ class DeleteUserInviteControllerTest extends TestCase
         $this->assertDatabaseMissing('user_invites', [
             'id' => $userInvite->id,
         ]);
+        Event::assertDispatched(DeleteUserInviteEvent::class, fn($event) => $event->invite->is($userInvite));
     }
 }
