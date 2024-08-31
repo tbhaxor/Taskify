@@ -25,7 +25,7 @@ class CreateUserInviteController extends Controller
         }
 
         if ($user = User::whereEmail($request->safe()->string('email'))->first()) {
-            UserGroupRole::create([
+            $groupRole = UserGroupRole::create([
                 'user_id' => $user->id,
                 'group_id' => $group->id,
                 'role_id' => $request->safe()['role_id']

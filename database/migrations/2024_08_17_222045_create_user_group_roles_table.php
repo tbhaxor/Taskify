@@ -14,11 +14,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('user_group_roles', function (Blueprint $table) {
+            $table->id();
+
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Group::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Role::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 
-            $table->primary(['user_id', 'group_id', 'role_id']);
+            $table->timestamps();
+            $table->unique(['user_id', 'group_id', 'role_id']);
         });
     }
 

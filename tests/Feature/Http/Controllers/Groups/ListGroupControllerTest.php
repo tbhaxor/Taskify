@@ -35,7 +35,7 @@ class ListGroupControllerTest extends TestCase
         $groups = Group::factory()->count(3)->create(['user_id' => $user->id]);
 
         $group = Group::factory()->create();
-        UserGroupRole::insert([
+        UserGroupRole::create([
             'group_id' => $group->id,
             'user_id' => $user->id,
             'role_id' => 1

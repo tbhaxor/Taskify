@@ -35,7 +35,7 @@ class UserFactory extends Factory
     {
         /** @var Role $role */
         $role = $role ?? Role::admin();
-        return $this->afterCreating(fn(User $user) => UserGroupRole::insert([
+        return $this->afterCreating(fn(User $user) => UserGroupRole::create([
             'user_id' => $user->id,
             'group_id' => $group->id,
             'role_id' => $role->id
