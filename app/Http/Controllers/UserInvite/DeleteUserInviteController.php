@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\UserInvite;
 
+use App\Events\UserInvite\DeleteUserInviteEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInvite\DeleteUserInviteRequest;
 use App\Models\Group;
@@ -24,6 +25,8 @@ class DeleteUserInviteController extends Controller
         }
 
         $userInvite->delete();
+
+        DeleteUserInviteEvent::dispatch($userInvite);
 
         return to_route('user-invite.index', ['group' => $group, 'message' => 'User invite has been deleted.']);
     }

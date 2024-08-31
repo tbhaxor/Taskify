@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserGroupRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class ListGroupSharingControllerTest extends TestCase
@@ -34,6 +35,7 @@ class ListGroupSharingControllerTest extends TestCase
 
     public function test_should_list_all_group_shares_for_group_owners()
     {
+        /** @var Collection<int, User> $users */
         $users = User::factory()->count(10)->create();
         $owner = $users->first();
 
@@ -59,20 +61,22 @@ class ListGroupSharingControllerTest extends TestCase
             'userGroupRoles' => UserGroupRole::whereGroupId($group->id)->get(),
             'group' => $group,
         ]);
+        $targetUser = $users->slice(1)->random();
+
         $this->assertStringContainsString(
-            '"' . route('group-sharing.edit', ['group' => $group, 'user_id' => $users->slice(1)->random()]) . '"',
+            '"' . route('group-sharing.edit', ['group' => $group, 'userGroupRole' => UserGroupRole::whereGroupId($group->id)->whereUserId($targetUser->id)->first()]) . '"',
             $response->content()
         );
         $this->assertStringContainsString(
-            '"' . route('group-sharing.delete', ['group' => $group, 'user_id' => $users->slice(1)->random()]) . '"',
+            '"' . route('group-sharing.delete', ['group' => $group, 'userGroupRole' => UserGroupRole::whereGroupId($group->id)->whereUserId($targetUser->id)->first()]) . '"',
             $response->content()
         );
         $this->assertStringNotContainsString(
-            '"' . route('group-sharing.edit', ['group' => $group, 'user_id' => $owner]) . '"',
+            '"' . route('group-sharing.edit', ['group' => $group, 'userGroupRole' => UserGroupRole::whereGroupId($group->id)->whereUserId($owner->id)->first()]) . '"',
             $response->content()
         );
         $this->assertStringNotContainsString(
-            '"' . route('group-sharing.delete', ['group' => $group, 'user_id' => $owner]) . '"',
+            '"' . route('group-sharing.delete', ['group' => $group, 'userGroupRole' => UserGroupRole::whereGroupId($group->id)->whereUserId($owner->id)->first()]) . '"',
             $response->content()
         );
     }

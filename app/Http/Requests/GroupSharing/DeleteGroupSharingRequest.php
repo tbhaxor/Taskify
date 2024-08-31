@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\GroupSharing;
 
-use App\Models\Group;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DeleteGroupSharingRequest extends FormRequest
@@ -12,9 +11,7 @@ class DeleteGroupSharingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        /** @var Group $group */
-        $group = $this->route('group');
-        return $this->user()->id === $group->user_id && (int)$this->query('user_id') !== $group->user_id;
+        return $this->user()->id === $this->route('group')->user_id && $this->route('userGroupRole')->user_id !== $this->user()->id;
     }
 
     /**

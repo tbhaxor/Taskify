@@ -26,7 +26,9 @@ class CreateGroupController extends Controller
         DB::transaction(function () use ($request) {
             $group = Group::create($request->safe()->merge(['user_id' => $request->user()->id])->toArray());
             $group->users()->attach($request->user()->id, [
-                'role_id' => Role::admin()->id
+                'role_id' => Role::admin()->id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         });
 

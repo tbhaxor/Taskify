@@ -28,7 +28,11 @@ class CreateUserInviteRequest extends FormRequest
         }
 
         return [
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                'email',
+                Rule::notIn($this->user()->email)
+            ],
             'role_id' => [
                 'required',
                 'integer',

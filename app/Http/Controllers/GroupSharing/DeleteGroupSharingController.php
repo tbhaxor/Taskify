@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\GroupSharing;
 
+use App\Events\GroupSharing\DeleteGroupSharingEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GroupSharing\DeleteGroupSharingRequest;
 use App\Models\Group;
@@ -14,22 +15,18 @@ class DeleteGroupSharingController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(DeleteGroupSharingRequest $request, Group $group): View|RedirectResponse
+    public function __invoke(DeleteGroupSharingRequest $request, Group $group, UserGroupRole $userGroupRole): View|RedirectResponse
     {
         if ($request->isMethod('GET')) {
             return view('group-sharing.delete', [
                 'group' => $group,
-                'userGroupRole' => UserGroupRole::query()->where([
-                    'group_id' => $group->id,
-                    'user_id' => $request->query('user_id'),
-                ])->firstOrFail()
+                'userGroupRole' => $userGroupRole
             ]);
         }
 
-        UserGroupRole::where([
-            'group_id' => $group->id,
-            'user_id' => $request->query('user_id')
-        ])->delete();
+        $userGroupRole->delete();
+
+        DeleteGroupSharingEvent::dispatch($userGroupRole);
 
         return to_route('group-sharing.index', [
             'group' => $group,

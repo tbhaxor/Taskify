@@ -16,6 +16,8 @@ class LoginController extends Controller
      */
     public function __invoke(Request $request): RedirectResponse
     {
-        return Socialite::driver('zitadel')->enablePKCE()->redirect();
+        return Socialite::driver('zitadel')->with([
+            'login_hint' => $request->input('email')
+        ])->enablePKCE()->redirect();
     }
 }

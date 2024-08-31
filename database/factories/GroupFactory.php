@@ -30,7 +30,7 @@ class GroupFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Group $group) {
-            UserGroupRole::insert([
+            UserGroupRole::create([
                 'group_id' => $group->id,
                 'user_id' => $group->user_id,
                 'role_id' => Role::admin()->id
