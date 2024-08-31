@@ -8,6 +8,7 @@ use App\Http\Controllers\Groups\ShowGroupController;
 use App\Http\Controllers\GroupSharing\DeleteGroupSharingController;
 use App\Http\Controllers\GroupSharing\EditGroupSharingController;
 use App\Http\Controllers\GroupSharing\ListGroupSharingController;
+use App\Http\Controllers\GroupSharing\ShowGroupSharingController;
 use App\Http\Controllers\Role\CreateRoleController;
 use App\Http\Controllers\Role\DeleteRoleController;
 use App\Http\Controllers\Role\EditRoleController;
@@ -97,7 +98,16 @@ Route::middleware('auth')->group(function () {
         ->prefix('groups/{group}/sharing')
         ->group(function () {
             Route::get('', ListGroupSharingController::class)->name('index');
-            Route::match(['GET', 'POST'], 'edit', EditGroupSharingController::class)->name('edit');
-            Route::match(['GET', 'POST'], 'delete', DeleteGroupSharingController::class)->name('delete');
+            Route::prefix('{userGroupRole}')
+                ->missing(function () {
+                    return to_route('group-sharing.index', [
+                        'group' => request()->route('group'),
+                        'error' => 'Requested resource does not exist.',
+                    ]);
+                })->group(function () {
+                    Route::get('', ShowGroupSharingController::class)->name('show');
+                    Route::match(['GET', 'POST'], 'edit', EditGroupSharingController::class)->name('edit');
+                    Route::match(['GET', 'POST'], 'delete', DeleteGroupSharingController::class)->name('delete');
+                });
         });
 });

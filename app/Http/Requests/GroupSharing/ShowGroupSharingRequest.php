@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests\GroupSharing;
 
-use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class EditGroupSharingRequest extends FormRequest
+class ShowGroupSharingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,19 +21,8 @@ class EditGroupSharingRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->isMethod('GET')) {
-            return [];
-        }
-
         return [
-
-            'role_id' => [
-                'required',
-                'integer',
-                Rule::exists('roles', 'id')->where(function (Builder $query) {
-                    return $query->where('user_id', $this->user()->id)->orWhereNull('user_id');
-                }),
-            ]
+            //
         ];
     }
 }

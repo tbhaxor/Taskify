@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\GroupSharing;
 
+use App\Events\GroupSharing\EditGroupSharingEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GroupSharing\EditGroupSharingRequest;
 use App\Models\Group;
@@ -14,27 +15,23 @@ class EditGroupSharingController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(EditGroupSharingRequest $request, Group $group): View|RedirectResponse
+    public function __invoke(EditGroupSharingRequest $request, Group $group, UserGroupRole $userGroupRole): View|RedirectResponse
     {
         if ($request->isMethod('GET')) {
             return view('group-sharing.edit', [
                 'roles' => $request->user()->roles,
                 'group' => $group,
-                'userGroupRole' => UserGroupRole::query()->where([
-                    'group_id' => $group->id,
-                    'user_id' => $request->query('user_id'),
-                ])->firstOrFail()
+                'userGroupRole' => $userGroupRole
             ]);
         }
 
-        UserGroupRole::where([
-            'group_id' => $group->id,
-            'user_id' => $request->query('user_id'),
-        ])->update($request->validated());
+        $userGroupRole->update($request->validated());
 
-        return to_route('group-sharing.index', [
+        EditGroupSharingEvent::dispatch($userGroupRole->fresh());
+
+        return to_route('group-sharing.show', [
             'group' => $group,
-            'message' => 'Group sharing has been updated.'
+            'userGroupRole' => $userGroupRole,
         ]);
     }
 }
