@@ -13,10 +13,6 @@ class UserGroupRole extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
-    protected $primaryKey = null;
-    public $incrementing = false;
-
     protected $fillable = [
         'user_id',
         'role_id',
