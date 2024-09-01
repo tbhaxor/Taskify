@@ -36,10 +36,10 @@ To get started with Taskify, follow the instructions below.
 
 ### Prerequisites
 
-- PHP 8.x
+- PHP 8.3
 - Composer
 - MySQL or any other supported database
-- Laravel 9.x
+- Laravel 11.x
 
 ### Steps
 
@@ -95,6 +95,7 @@ Once installed, you can start using Taskify by accessing it in your web browser.
 - **Update Task** Click on the edit task button to update its title, status and description of it.
 
 > ![NOTE]
+>
 > If the status is set to completed, you can't change it to in-progress or any other status. Instead, you should create
 > a new task.
 
