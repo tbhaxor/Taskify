@@ -39,7 +39,9 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
+
+    'show_ephemeral_banner' => env('APP_SHOW_DEPLOY_BANNER'),
 
     /*
     |--------------------------------------------------------------------------
