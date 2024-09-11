@@ -12,7 +12,7 @@
 </head>
 
 <body>
-@if (env('APP_SHOW_DEPLOY_BANNER'))
+@if (config('app.show_ephemeral_banner'))
     <div style="margin: 0; padding: 1em" class="alert alert-warning text-center" role="alert">
         This is <strong>deployed on a free tier</strong> of a <a href="https://render.com/">https://render.com</a>,
         <strong>after inactivity all the data will be wiped!</strong>
